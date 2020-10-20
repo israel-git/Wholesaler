@@ -1,0 +1,19 @@
+﻿
+body {padding-top:0px;}
+.company-nav .active a { background-color: whitesmoke !important; }
+div.container .body-content {padding:0px;}
+.double-menu-arrow {margin: 0px -4px;}
+.firstColumn {float:left;}
+.secondColumn{margin-left:30%;}
+.glyphicon-remove-circle { margin-left: 5px; cursor: pointer; color: red; }
+.glyphicon-home { color: #4380c3; border: 1px solid black; float: left; }
+.logo-image { height: 30px; width: 30px; }
+.order-nav {margin-top:10px;}
+.nav-pills > li.active > a { background-color: whitesmoke !important; color: black!important; }
+.new-record-button { float: right; background-color: #4380c3; font-weight: bold; color: white; margin-top: 12px; }
+.summaryBox { /*border:1px solid whitesmoke;*/ margin-bottom: 30px; }
+#tableHeader {color:white; float:right; border:1px solid white; border-radius:4px; margin-right:10px; padding: 0px 10px; text-decoration:none; font-weight:normal;}
+    #tableHeader:hover { font-weight:bold;}
+th {border: 1px solid lightgray;}
+thead {background-color:whitesmoke}
+.userName { padding: 15px; line-height: 20px; position: relative; display: block; float:right; font-weight:bold; }

@@ -1,0 +1,35 @@
+﻿@{
+    Layout = "~/Views/Shared/_Navbar.cshtml";
+}
+<script>
+    $(function () {
+        $('a').each(function () {
+            if (window.location.href.indexOf("Proposals") > -1) {
+                $('#proposals').addClass('active');
+            }
+            if (window.location.href.indexOf("PurchaseOrder") > -1) {
+                $('#purchaseOrders').addClass('active');
+            }
+            if (window.location.href.indexOf("Invoices") > -1) {
+                $('#invoices').addClass('active');
+            }
+            if (window.location.href.indexOf("Payments") > -1) {
+                $('#payments').addClass('active');
+            }
+        });
+    });
+</script>
+        
+@RenderSection("summaryBar", required:false)
+
+        <ul class="order-nav nav nav-pills">
+            <li id="proposals"><a href="~/Proposals/ProposalsList/@ViewBag.orderID">Proposals</a></li>
+            <li id="purchaseOrders"><a href="~/PurchaseOrders/PurchaseOrdersList/@ViewBag.orderID">Purchase Orders</a></li>
+            <li id="invoices"><a href="~/Invoices/InvoicesList/@ViewBag.orderID">Invoices</a></li>
+            <li id="payments"><a href="~/Payments/PaymentsList/@ViewBag.orderID">Payments</a></li>
+        </ul>
+
+<div class="container body-content">
+    @RenderBody()
+</div>
+@RenderSection("scripts", required: false)

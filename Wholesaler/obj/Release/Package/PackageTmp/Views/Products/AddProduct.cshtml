@@ -1,0 +1,90 @@
+﻿@model Wholesaler.Models.ProductDetailsModel
+
+@{ 
+    ViewBag.Title = "New Product";
+    Layout = "~/Views/Shared/_Navbar.cshtml";
+}
+<script>
+    function submitForm() { $('#pageForm').submit(); }
+</script>
+
+<h2>Add New Product</h2>
+<form method="post" id="pageForm" action="~/Products/AddProduct">
+    
+    <div class="row">&nbsp;</div>
+    @*<div class="pageIcons"><a href="~/Products/ProductsList/@ViewBag.id" title="Back"><i class="glyphicon glyphicon-arrow-left  btn-lg  edit-del " style="color:#337AB7; border: 1px solid black; margin-bottom: 10px;"></i></a></div>*@
+    <div class="row col-sm-12 formEditContainer well">
+        <p>
+            <div class="row">
+                <label class="col-sm-2 control-label">Name</label>
+                <div class="col-sm-7">
+                    @Html.TextBoxFor(x => x.Product.Name, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(x => x.Product.Name)
+                </div>
+            </div>
+        </p>
+        <p>
+            <div class="row">
+                <label class="col-sm-2 control-label">SKU</label>
+                <div class="col-sm-7">
+                    @Html.TextBoxFor(x => x.Product.SKU, new { @class = "form-control", })
+                    @Html.ValidationMessageFor(x => x.Product.SKU)
+                </div>
+            </div>
+        </p>
+        <p>
+            <div class="row">
+                <label class="col-sm-2 control-label">UPC</label>
+                <div class="col-sm-7">
+                    @Html.TextBoxFor(x => x.Product.UPC, new { @class = "form-control", })
+                    @Html.ValidationMessageFor(x => x.Product.UPC)
+                </div>
+            </div>
+        </p>
+        <p>
+            <div class="row">
+                <label class="col-sm-2 control-label">EAN</label>
+                <div class="col-sm-7">
+                    @Html.TextBoxFor(x => x.Product.EAN, new { @class = "form-control", })
+                    @Html.ValidationMessageFor(x => x.Product.EAN)
+                </div>
+            </div>
+        </p>
+        <p>
+            <div class="row">
+                <label class="col-sm-2 control-label">Display Name</label>
+                <div class="col-sm-7">
+                    @Html.TextBoxFor(x => x.Product.DisplayName, new { @class = "form-control", })
+                    @Html.ValidationMessageFor(x => x.Product.DisplayName)
+                </div>
+            </div>
+        </p>
+        <p>
+            <div class="row">
+                <label class="col-sm-2 control-label">Price ($)</label>
+                <div class="col-sm-7">
+                    @Html.TextBoxFor(x => x.Product.Price, new { @class = "form-control", })
+                    @Html.ValidationMessageFor(x => x.Product.Price)
+                </div>
+            </div>
+        </p>
+        <p>
+            <div class="row">
+                <label class="col-sm-2 control-label">Cost ($)</label>
+                <div class="col-sm-7">
+                    @Html.TextBoxFor(x => x.Product.Cost, new { @class = "form-control", })
+                    @Html.ValidationMessageFor(x => x.Product.Cost)
+                </div>
+            </div>
+        <p>
+            <div class="row">
+                <label class="col-sm-2 control-label">Case Quantity</label>
+                <div class="col-sm-7">
+                    @Html.TextBoxFor(x => x.Product.CaseQuantity, new { @class = "form-control", })
+                    @Html.ValidationMessageFor(x => x.Product.CaseQuantity)
+                </div>
+            </div>
+        </p>
+    </div>
+    <a href="#" class="btn btn-success" role="button" onclick="submitForm(); return false;">Submit</a>
+</form>

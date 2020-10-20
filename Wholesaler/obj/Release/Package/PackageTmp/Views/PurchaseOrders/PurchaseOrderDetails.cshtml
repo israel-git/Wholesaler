@@ -1,0 +1,360 @@
+﻿@model Wholesaler.Models.PurchaseOrdersDetailsModel
+@{
+    ViewBag.id = ViewBag.companyID.CompanyID;
+    ViewBag.orderID = Model.PurchaseOrder.OrderID;
+
+    ViewBag.Title = "Purchase Order Details";
+    Layout = "~/Views/Shared/_OrderNavbar.cshtml";
+}
+@{
+    decimal totalOrderedProducts = 0;
+    decimal totalCosts = 0;
+    decimal totalExpenses = 0;
+    decimal totalInternalExpenses = 0;
+    decimal totalExternalExpenses = 0;
+    decimal subTotal = 0;
+}
+@foreach (var product in Model.Order.OrderedProducts)
+{
+    var cost = product.Cost ?? 0;
+    //@cost.ToString("C")
+    var quantity = product.Quantity ?? 0;
+    var costXquant = cost * quantity;
+    totalCosts += costXquant;
+
+    var price = product.Price ?? 0;
+    subTotal = price * quantity;
+    totalOrderedProducts += subTotal;
+}
+
+@foreach (var expense in Model.Order.Expenses)
+{
+    var expenseAmount = expense.Amount ?? 0;
+    if (expense.Internal == true)
+    { totalInternalExpenses += expenseAmount; }
+    else
+    { totalExternalExpenses += expenseAmount; }
+
+    totalExpenses += expenseAmount;
+}
+@{
+    var shipping = Model.Order.Shipping ?? 0;
+    decimal totalwExternal = totalOrderedProducts + totalExternalExpenses;
+    decimal totalwCostsInternal = totalCosts + totalInternalExpenses;
+    decimal totalPayments = 0;
+    foreach (var payment in Model.PaymentsList)
+    {
+        totalPayments += payment.Amount ?? 0;
+    }
+    decimal amountDue = totalwExternal + shipping - totalPayments;
+    decimal totalExternalWShipping = totalOrderedProducts + totalExternalExpenses + shipping;
+}
+
+@section summaryBar
+{
+    <div class="summaryBox">
+        <div class="firstColumn">
+            <strong>Company:</strong> @Model.Order.Company.CompanyName<br /> <strong>Status: </strong>@Model.Order.OrderStatuses.StatusName<br />
+            <strong>From:</strong> @Model.Order.FromCompany.CompanyName<br /> <strong>To:</strong> @Model.Order.ToCompany.CompanyName
+        </div>
+        <div class="secondColumn">
+            <strong>Total Cost: </strong>@totalwCostsInternal.ToString("C")<br /><strong>Total Order:</strong>  @totalExternalWShipping.ToString("C")<br />
+            <strong>Total Paid: </strong>@totalPayments.ToString("C")<br /> <strong>Amount Due: </strong>@amountDue.ToString("C")
+        </div>
+    </div>
+}
+<script>
+    function submitForm() { $('#pageForm').submit(); }
+</script>
+
+
+<form method="post" id="pageForm" action="~/PurchaseOrders/PurchaseOrderDetails/@Model.PurchaseOrder.ID" enctype="multipart/form-data">
+    @if (Model.PurchaseOrder.ID > 0)
+    {
+        @Html.HiddenFor(x => x.PurchaseOrder.ID)
+        @Html.HiddenFor(x => x.PurchaseOrder.OrderID)
+    }
+    <div class="row  col-sm-12 formHolder">
+
+    </div>
+    <div class="row">&nbsp;</div>
+    @*<div class="pageIcons"><a href="@Url.Action("PurchaseOrdersList/" + Model.PurchaseOrder.OrderID, "PurchaseOrders")" title="Back"><i class="glyphicon glyphicon-arrow-left  btn-lg  edit-del " style="color:#337AB7; border: 1px solid black; margin-bottom: 10px;"></i></a></div>*@
+    <div class="row col-sm-12 formEditContainer well">
+
+        <p>
+            <div class="row">
+                <label class="col-sm-2 control-label">Date</label>
+                <div class="col-sm-7">
+                    @Html.TextBoxFor(x => x.PurchaseOrder.Date, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(x => x.PurchaseOrder.Date)
+                </div>
+            </div>
+        </p>
+        <p>
+            <div class="row">
+                <label class="col-sm-2 control-label">Purchase Order #</label>
+                <div class="col-sm-7">
+                    @Html.TextBoxFor(x => x.PurchaseOrder.PurchaseOrderNumber, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(x => x.PurchaseOrder.PurchaseOrderNumber)
+                </div>
+            </div>
+        </p>
+        <p>
+            <div class="row">
+                <label class="col-sm-2 control-label">Layout ID</label>
+                <div class="col-sm-7">
+           
+                    <script>
+                        $(document).ready(function () {
+                            $(".chosen-select").chosen();
+                        });
+                    </script>                
+    
+    @*@Html.TextBoxFor(x => x.PurchaseOrder.LayoutID, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(x => x.PurchaseOrder.LayoutID)*@
+                    @Html.DropDownListFor(x => x.PurchaseOrder.LayoutID,
+                 new SelectList(Model.LayoutsList, "LayoutID", "LayoutName"), 
+                 new { @class = "chosen-select", style = "width:150px;" })
+                </div>
+            </div>
+        </p>
+        <h3>Billing Details</h3>
+        <p>
+            <div class="row">
+                <label class="col-sm-2 control-label">Bill To Company</label>
+                <div class="col-sm-7">
+                    @Html.TextBoxFor(x => x.PurchaseOrder.BillToCompany, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(x => x.PurchaseOrder.BillToCompany)
+                </div>
+            </div>
+        </p>
+        <p>
+            <div class="row">
+                <label class="col-sm-2 control-label">Name</label>
+                <div class="col-sm-7">
+                    @Html.TextBoxFor(x => x.PurchaseOrder.BillToName, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(x => x.PurchaseOrder.BillToName)
+                </div>
+            </div>
+        </p>
+        <p>
+            <div class="row">
+                <label class="col-sm-2 control-label">Address</label>
+                <div class="col-sm-7">
+                    @Html.TextBoxFor(x => x.PurchaseOrder.BillToAddress, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(x => x.PurchaseOrder.BillToAddress)
+                </div>
+            </div>
+        </p>
+        <p>
+            <div class="row">
+                <label class="col-sm-2 control-label">City</label>
+                <div class="col-sm-7">
+                    @Html.TextBoxFor(x => x.PurchaseOrder.BillToCity, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(x => x.PurchaseOrder.BillToCity)
+                </div>
+            </div>
+        </p>
+        <p>
+            <div class="row">
+                <label class="col-sm-2 control-label">State</label>
+                <div class="col-sm-7">
+                    @Html.TextBoxFor(x => x.PurchaseOrder.BillToState, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(x => x.PurchaseOrder.BillToState)
+                </div>
+            </div>
+        </p>
+        <p>
+            <div class="row">
+                <label class="col-sm-2 control-label">Zip</label>
+                <div class="col-sm-7">
+                    @Html.TextBoxFor(x => x.PurchaseOrder.BillToZip, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(x => x.PurchaseOrder.BillToZip)
+                </div>
+            </div>
+        </p>
+        <h3>Shipping Details</h3>
+        <p>
+            <div class="row">
+                <label class="col-sm-2 control-label">Ship To Company</label>
+                <div class="col-sm-7">
+                    @Html.TextBoxFor(x => x.PurchaseOrder.ShipToCompany, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(x => x.PurchaseOrder.ShipToCompany)
+                </div>
+            </div>
+        </p>
+        <p>
+            <div class="row">
+                <label class="col-sm-2 control-label">Name</label>
+                <div class="col-sm-7">
+                    @Html.TextBoxFor(x => x.PurchaseOrder.ShipToName, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(x => x.PurchaseOrder.ShipToName)
+                </div>
+            </div>
+        </p>
+        <p>
+            <div class="row">
+                <label class="col-sm-2 control-label">Address</label>
+                <div class="col-sm-7">
+                    @Html.TextBoxFor(x => x.PurchaseOrder.ShipToAddress, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(x => x.PurchaseOrder.ShipToAddress)
+                </div>
+            </div>
+        </p>
+        <p>
+            <div class="row">
+                <label class="col-sm-2 control-label">City</label>
+                <div class="col-sm-7">
+                    @Html.TextBoxFor(x => x.PurchaseOrder.ShipToCity, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(x => x.PurchaseOrder.ShipToCity)
+                </div>
+            </div>
+        </p>
+        <p>
+            <div class="row">
+                <label class="col-sm-2 control-label">State</label>
+                <div class="col-sm-7">
+                    @Html.TextBoxFor(x => x.PurchaseOrder.ShipToState, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(x => x.PurchaseOrder.ShipToState)
+                </div>
+            </div>
+        </p>
+        <p>
+            <div class="row">
+                <label class="col-sm-2 control-label">Zip</label>
+                <div class="col-sm-7">
+                    @Html.TextBoxFor(x => x.PurchaseOrder.ShipToZip, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(x => x.PurchaseOrder.ShipToZip)
+                </div>
+            </div>
+        </p>
+        <p>
+            <div class="row">
+                <label class="col-sm-2 control-label">Taxable?</label>
+                <div class="col-sm-7">
+
+                    @Html.TextBoxFor(x => x.PurchaseOrder.Taxable, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(x => x.PurchaseOrder.Taxable)
+                </div>
+            </div>
+        </p>
+        <p>
+            <div class="row">
+                <label class="col-sm-2 control-label taxRate">Tax Rate</label>
+                <div class="col-sm-7 taxRate">
+                    @Html.TextBoxFor(x => x.PurchaseOrder.TaxRate, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(x => x.PurchaseOrder.TaxRate)
+                </div>
+            </div>
+        </p>
+        <p>
+            <div class="row">
+                <label class="col-sm-2 control-label">Footer Notes</label>
+                <div class="col-sm-7">
+                    @Html.TextBoxFor(x => x.PurchaseOrder.FooterNotes, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(x => x.PurchaseOrder.FooterNotes)
+                </div>
+            </div>
+        </p>
+        <p>
+            <div class="row">
+                <label class="col-sm-2 control-label">Terms</label>
+                <div class="col-sm-7">
+                    @Html.DropDownListFor(x => x.PurchaseOrder.Terms, new SelectList(
+                            new List<Object>
+                            {
+                                new {value = "", text = "Select a Term" },
+                                new {value = "EXW", text = "EXW" },
+                                new {value = "FCA", text = "FCA"},
+                                new {value = "FOB", text = "FOB"},
+                                new {value = "FRC", text = "FRC"},
+                                new {value = "DAP", text = "DAP"},
+                                new {value = "CIF", text = "CIF"}
+                            },
+                            "value",
+                            "text"
+                            ), new { @class = "form-control" })
+                </div>
+            </div>
+        </p>
+        <p>
+            <div class="row">
+                <label class="col-sm-2 control-label">Documents</label>
+                <div class="col-sm-7">
+                    <table class="table striped hover data-table" id="main-table" data-order="[]"
+                           data-orderable="true"
+                           data-sort-name="ID"
+                           data-sort-order="asc">
+                        <thead>
+                            <tr>
+                                <th data-field="ID" data-sortable="true">ID</th>
+                                <th data-field="Documents" data-sortable="true">Document Name</th>
+                                <th data-orderable="false" data-width="140"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var doc in Model.DocumentsList)
+                            {
+                                string url = "http://localhost:5564/Uploads/Documents/" + doc.GUID;
+                                <tr>
+                                    <td>@doc.ID</td>
+                                    <td><a href="@url" target="_blank">@doc.DocumentName</a></td>
+                                    <td>
+                                        <button onclick="deleteDocument(@doc.ID); return false;" class="btn btn-danger btn-xs"><i class="glyphicon glyphicon-trash"></i> Delete</button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                    <br />
+                </div>
+            </div>
+        <p>
+            <h3>Add New Document</h3>
+            <div class="row">
+                <label class="col-sm-2 control-label">Document Name</label>
+                <div class="col-sm-7">
+                    @Html.TextBoxFor(x => x.Document.DocumentName, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(x => x.Document.DocumentName)
+                </div>
+            </div>
+        </p>
+        <div class="row">
+            <label class="col-sm-2 control-label" for="file">Upload Document</label>
+            <div class="col-sm-7">
+                <input type="file" name="documentFile" />
+            </div>
+        </div>
+    </div>
+
+    @if (Model.PurchaseOrder.ID > 0)
+    {
+        <button type="button" class="btn btn-success" onclick="submitForm(); return false;">Save</button>
+        @:&nbsp;
+        <button type="button" class="btn btn-danger" onclick="deleteItem(@Model.PurchaseOrder.ID); return false;">Delete</button>
+        @:&nbsp;
+        <a href="~/PurchaseOrders/Export/@Model.PurchaseOrder.ID" class="btn btn-info" role="button">Export</a>
+    }
+
+</form>
+
+<script>
+    var table;
+    $(function () {
+        table = $('#main-table').bootstrapTable();
+    });
+    function deleteItem(id) {
+        smoke.confirm('Are you sure you want to delete this record?', function (e) {
+            if (e)
+                location.href = '/PurchaseOrders/Delete/' + id;
+        });
+    }
+    function deleteDocument(id) {
+        smoke.confirm('Are you sure you want to delete this document?', function (e) {
+            if (e)
+                location.href = '/PurchaseOrders/DeleteDocument/' + id;
+        });
+    }
+</script>
+
+

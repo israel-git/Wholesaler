@@ -1,0 +1,48 @@
+﻿@model Wholesaler.Models.CompanyPositionsDetailsModel
+@{
+    ViewBag.id = ViewBag.compID;
+}
+@{
+    ViewBag.Title = "New Position";
+    Layout = "~/Views/Shared/_Navbar.cshtml";
+}
+
+<script>
+    function submitForm() { $('#pageForm').submit(); }
+</script>
+
+<h2>Add New Position</h2>
+@{
+    if (ViewBag.compID != null)
+    {
+        Model.CompanyPosition.CompanyID = ViewBag.compID;
+    }
+}
+
+<form method="post" id="pageForm" action="~/CompanyPositions/AddPosition/@Model.CompanyPosition.CompanyID">
+    @*<div class="pageIcons"><a href="@Url.Action("PositionsList/" + Model.CompanyPosition.CompanyID, "CompanyPositions")" title="Back"><i class="glyphicon glyphicon-arrow-left  btn-lg  edit-del " style="color:#337AB7; border: 1px solid black; margin-bottom: 10px;"></i></a></div>*@
+    <div class="well">
+
+        <p>
+            <div class="row">
+                <label class="col-sm-2 control-label">Position Name</label>
+                <div class="col-sm-7">
+                    @Html.TextBoxFor(x => x.CompanyPosition.PositionName, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(x => x.CompanyPosition.PositionName)
+                </div>
+            </div>
+        </p>
+        <div class="row">
+            <label class="col-sm-2 control-label">Color</label>
+            <div class="col-sm-7">
+                @Html.TextBoxFor(x => x.CompanyPosition.Color, new { @class = "form-control", })
+                @Html.ValidationMessageFor(x => x.CompanyPosition.Color)
+            </div>
+        </div>
+       
+        @Html.HiddenFor(x => x.CompanyPosition.CompanyID)
+        
+    </div>
+    <a href="#" class="btn btn-success" role="button" onclick="submitForm(); return false;">Submit</a>
+</form>
+

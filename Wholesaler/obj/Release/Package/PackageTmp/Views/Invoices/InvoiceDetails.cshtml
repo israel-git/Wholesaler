@@ -1,0 +1,370 @@
+﻿@model Wholesaler.Models.InvoiceDetailsModel
+@{
+    ViewBag.id = ViewBag.companyID.CompanyID;
+    ViewBag.orderID = Model.Invoice.OrderID;
+
+    ViewBag.Title = "Invoice Details";
+    Layout = "~/Views/Shared/_OrderNavbar.cshtml";
+}
+@{
+    ViewBag.id = ViewBag.companyID.CompanyID;
+    if (ViewBag.orderID != null)
+    {
+        Model.Invoice.OrderID = ViewBag.orderID;
+    }
+    Layout = "~/Views/Shared/_OrderNavbar.cshtml";
+}
+@{
+    decimal totalOrderedProducts = 0;
+    decimal totalCosts = 0;
+    decimal totalExpenses = 0;
+    decimal totalInternalExpenses = 0;
+    decimal totalExternalExpenses = 0;
+    decimal subTotal = 0;
+}
+@foreach (var product in Model.Order.OrderedProducts)
+{
+    var cost = product.Cost ?? 0;
+    //@cost.ToString("C")
+    var quantity = product.Quantity ?? 0;
+    var costXquant = cost * quantity;
+    totalCosts += costXquant;
+
+    var price = product.Price ?? 0;
+    subTotal = price * quantity;
+    totalOrderedProducts += subTotal;
+}
+
+@foreach (var expense in Model.Order.Expenses)
+{
+    var expenseAmount = expense.Amount ?? 0;
+    if (expense.Internal == true)
+    { totalInternalExpenses += expenseAmount; }
+    else
+    { totalExternalExpenses += expenseAmount; }
+
+    totalExpenses += expenseAmount;
+}
+@{
+    var shipping = Model.Order.Shipping ?? 0;
+    decimal totalwExternal = totalOrderedProducts + totalExternalExpenses;
+    decimal totalwCostsInternal = totalCosts + totalInternalExpenses;
+    decimal totalPayments = 0;
+    foreach (var payment in Model.PaymentsList)
+    {
+        totalPayments += payment.Amount ?? 0;
+    }
+    decimal amountDue = totalwExternal + shipping - totalPayments;
+    decimal totalExternalWShipping = totalOrderedProducts + totalExternalExpenses + shipping;
+}
+
+@section summaryBar
+{
+    <div class="summaryBox">
+        <div class="firstColumn">
+            <strong>Company:</strong> @Model.Order.Company.CompanyName<br /> <strong>Status: </strong>@Model.Order.OrderStatuses.StatusName<br />
+            <strong>From:</strong> @Model.Order.FromCompany.CompanyName<br /> <strong>To:</strong> @Model.Order.ToCompany.CompanyName
+        </div>
+        <div class="secondColumn">
+            <strong>Total Cost: </strong>@totalwCostsInternal.ToString("C")<br /> <strong>Total Order:</strong>  @totalExternalWShipping.ToString("C")<br />
+            <strong>Total Paid: </strong>@totalPayments.ToString("C")<br /> <strong>Amount Due: </strong>@amountDue.ToString("C")
+        </div>
+   </div>
+}
+<script>
+    function submitForm() { $('#pageForm').submit(); }
+</script>
+
+
+<form method="post" id="pageForm" action="~/Invoices/InvoiceDetails/@Model.Invoice.ID" enctype="multipart/form-data">
+    @if (Model.Invoice.ID > 0)
+    {
+        @Html.HiddenFor(x => x.Invoice.ID)
+        @Html.HiddenFor(x => x.Invoice.OrderID)
+    }
+    <div class="row  col-sm-12 formHolder">
+
+    </div>
+    <div class="row">&nbsp;</div>
+    @*<div class="pageIcons"><a href="@Url.Action("InvoicesList/" + Model.Invoice.OrderID, "Invoices")" title="Back"><i class="glyphicon glyphicon-arrow-left  btn-lg  edit-del " style="color:#337AB7; border: 1px solid black; margin-bottom: 10px;"></i></a></div>*@
+    <div class="row col-sm-12 formEditContainer well">
+
+        <p>
+            <div class="row">
+                <label class="col-sm-2 control-label">Date</label>
+                <div class="col-sm-7">
+                    @Html.TextBoxFor(x => x.Invoice.Date, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(x => x.Invoice.Date)
+                </div>
+            </div>
+        </p>
+        <p>
+            <div class="row">
+                <label class="col-sm-2 control-label">Invoice #</label>
+                <div class="col-sm-7">
+                    @Html.TextBoxFor(x => x.Invoice.InvoiceNumber, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(x => x.Invoice.InvoiceNumber)
+                </div>
+            </div>
+        </p>
+        <p>
+            <div class="row">
+                <label class="col-sm-2 control-label">Layout</label>
+                <div class="col-sm-7">
+
+                    <script>
+                        $(document).ready(function () {
+                            $(".chosen-select").chosen();
+                        });
+                    </script>
+
+                    @*@Html.TextBoxFor(x => x.Invoice.LayoutID, new { @class = "form-control" })
+        @Html.ValidationMessageFor(x => x.Invoice.LayoutID)*@
+                    @Html.DropDownListFor(x => x.Invoice.LayoutID,
+                 new SelectList(Model.LayoutsList, "LayoutID", "LayoutName"), 
+                 new { @class = "chosen-select", style = "width:150px;" })
+                </div>
+            </div>
+        </p>
+        <h3>Billing Details</h3>
+        <p>
+            <div class="row">
+                <label class="col-sm-2 control-label">Bill To Company</label>
+                <div class="col-sm-7">
+                    @Html.TextBoxFor(x => x.Invoice.BillToCompany, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(x => x.Invoice.BillToCompany)
+                </div>
+            </div>
+        </p>
+        <p>
+            <div class="row">
+                <label class="col-sm-2 control-label">Name</label>
+                <div class="col-sm-7">
+                    @Html.TextBoxFor(x => x.Invoice.BillToName, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(x => x.Invoice.BillToName)
+                </div>
+            </div>
+        </p>
+        <p>
+            <div class="row">
+                <label class="col-sm-2 control-label">Address</label>
+                <div class="col-sm-7">
+                    @Html.TextBoxFor(x => x.Invoice.BillToAddress, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(x => x.Invoice.BillToAddress)
+                </div>
+            </div>
+        </p>
+        <p>
+            <div class="row">
+                <label class="col-sm-2 control-label">City</label>
+                <div class="col-sm-7">
+                    @Html.TextBoxFor(x => x.Invoice.BillToCity, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(x => x.Invoice.BillToCity)
+                </div>
+            </div>
+        </p>
+        <p>
+            <div class="row">
+                <label class="col-sm-2 control-label">State</label>
+                <div class="col-sm-7">
+                    @Html.TextBoxFor(x => x.Invoice.BillToState, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(x => x.Invoice.BillToState)
+                </div>
+            </div>
+        </p>
+        <p>
+            <div class="row">
+                <label class="col-sm-2 control-label">Zip</label>
+                <div class="col-sm-7">
+                    @Html.TextBoxFor(x => x.Invoice.BillToZip, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(x => x.Invoice.BillToZip)
+                </div>
+            </div>
+        </p>
+        <h3>Shipping Details</h3>
+        <p>
+            <div class="row">
+                <label class="col-sm-2 control-label">Ship To Company</label>
+                <div class="col-sm-7">
+                    @Html.TextBoxFor(x => x.Invoice.ShipToCompany, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(x => x.Invoice.ShipToCompany)
+                </div>
+            </div>
+        </p>
+        <p>
+            <div class="row">
+                <label class="col-sm-2 control-label">Name</label>
+                <div class="col-sm-7">
+                    @Html.TextBoxFor(x => x.Invoice.ShipToName, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(x => x.Invoice.ShipToName)
+                </div>
+            </div>
+        </p>
+        <p>
+            <div class="row">
+                <label class="col-sm-2 control-label">Address</label>
+                <div class="col-sm-7">
+                    @Html.TextBoxFor(x => x.Invoice.ShipToAddress, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(x => x.Invoice.ShipToAddress)
+                </div>
+            </div>
+        </p>
+        <p>
+            <div class="row">
+                <label class="col-sm-2 control-label">City</label>
+                <div class="col-sm-7">
+                    @Html.TextBoxFor(x => x.Invoice.ShipToCity, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(x => x.Invoice.ShipToCity)
+                </div>
+            </div>
+        </p>
+        <p>
+            <div class="row">
+                <label class="col-sm-2 control-label">State</label>
+                <div class="col-sm-7">
+                    @Html.TextBoxFor(x => x.Invoice.ShipToState, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(x => x.Invoice.ShipToState)
+                </div>
+            </div>
+        </p>
+        <p>
+            <div class="row">
+                <label class="col-sm-2 control-label">Zip</label>
+                <div class="col-sm-7">
+                    @Html.TextBoxFor(x => x.Invoice.ShipToZip, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(x => x.Invoice.ShipToZip)
+                </div>
+            </div>
+        </p>
+        <p>
+            <div class="row">
+                <label class="col-sm-2 control-label">Taxable?</label>
+                <div class="col-sm-7">
+
+                    @Html.TextBoxFor(x => x.Invoice.Taxable, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(x => x.Invoice.Taxable)
+                </div>
+            </div>
+        </p>
+        <p>
+            <div class="row">
+                <label class="col-sm-2 control-label taxRate">Tax Rate</label>
+                <div class="col-sm-7 taxRate">
+                    @Html.TextBoxFor(x => x.Invoice.TaxRate, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(x => x.Invoice.TaxRate)
+                </div>
+            </div>
+        </p>
+        <p>
+            <div class="row">
+                <label class="col-sm-2 control-label">Footer Notes</label>
+                <div class="col-sm-7">
+                    @Html.TextBoxFor(x => x.Invoice.FooterNotes, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(x => x.Invoice.FooterNotes)
+                </div>
+            </div>
+        </p>
+        <p>
+            <div class="row">
+                <label class="col-sm-2 control-label">Terms</label>
+                <div class="col-sm-7">
+                    @Html.DropDownListFor(x => x.Invoice.Terms, new SelectList(
+                            new List<Object>
+                            {
+                                new {value = "", text = "Select a Term"},
+                                new {value = "EXW", text = "EXW" },
+                                new {value = "FCA", text = "FCA"},
+                                new {value = "FOB", text = "FOB"},
+                                new {value = "FRC", text = "FRC"},
+                                new {value = "DAP", text = "DAP"},
+                                new {value = "CIF", text = "CIF"}
+                            },
+                            "value",
+                            "text"
+                            ), new { @class = "chosen-select", style = "width:150px;" })
+                </div>
+            </div>
+        </p>
+        <p>
+            <div class="row">
+                <label class="col-sm-2 control-label">Documents</label>
+                <div class="col-sm-7">
+                    <table class="table striped hover data-table" id="main-table" data-order="[]"
+                           data-orderable="true"
+                           data-sort-name="ID"
+                           data-sort-order="asc">
+                        <thead>
+                            <tr>
+                                <th data-field="ID" data-sortable="true">ID</th>
+                                <th data-field="Documents" data-sortable="true">Document Name</th>
+                                <th data-orderable="false" data-width="140"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var doc in Model.DocumentsList)
+                            {
+                                string url = "http://localhost:5564/Uploads/Documents/" + doc.GUID;
+                                <tr>
+                                    <td>@doc.ID</td>
+                                    <td><a href="@url" target="_blank">@doc.DocumentName</a></td>
+                                    <td>
+                                        <button onclick="deleteDocument(@doc.ID); return false;" class="btn btn-danger btn-xs"><i class="glyphicon glyphicon-trash"></i> Delete</button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                    <br />
+                </div>
+            </div>
+        <p>
+        <p>
+            <h3>Add New Document</h3>
+            <div class="row">
+                <label class="col-sm-2 control-label">Document Name</label>
+                <div class="col-sm-7">
+                    @Html.TextBoxFor(x => x.Document.DocumentName, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(x => x.Document.DocumentName)
+                </div>
+            </div>
+        </p>
+        <div class="row">
+            <label class="col-sm-2 control-label" for="file">Upload Document</label>
+            <div class="col-sm-7">
+                <input type="file" name="documentFile" />
+            </div>
+        </div>
+    </div>
+
+    @if (Model.Invoice.ID > 0)
+    {
+        <button type="button" class="btn btn-success" onclick="submitForm(); return false;">Save</button>
+        @:&nbsp;
+        <button type="button" class="btn btn-danger" onclick="deleteItem(@Model.Invoice.ID); return false;">Delete</button>
+        @:&nbsp;
+        <a href="~/Invoices/Export/@Model.Invoice.ID" class="btn btn-info" role="button">Generate Invoice</a>
+    }
+
+</form>
+
+<script>
+    var table;
+    $(function () {
+        table = $('#main-table').bootstrapTable();
+    });
+    function deleteItem(id) {
+        smoke.confirm('Are you sure you want to delete this record?', function (e) {
+            if (e)
+                location.href = '/Invoices/Delete/' + id;
+        });
+    }
+    function deleteDocument(id) {
+        smoke.confirm('Are you sure you want to delete this document?', function (e) {
+            if (e)
+                location.href = '/Invoices/DeleteDocument/' + id;
+        });
+    }
+
+</script>
+
+

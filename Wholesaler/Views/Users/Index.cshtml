@@ -1,0 +1,76 @@
+﻿@model Wholesaler.Models.UsersIndexModel
+@{
+    ViewBag.Title = "Users";
+    Layout = "~/Views/Shared/_MainNavbar.cshtml";
+}
+
+@*<a href="~/Users/AddUser" class="btn new-record-button" role="button">New User</a>*@
+
+<table class="stripe hover compact row-border" id="main-table">
+       <thead>
+            <tr>
+                <th data-field="ID" data-sortable="true">ID</th>
+                <th data-field="Email" data-sortable="true">Email</th>
+                <th data-field="FirstName" data-sortable="true">First Name</th>
+                <th data-field="LastName" data-sortable="true">Last Name</th>
+                <th data-field="PermissionLevel">Permission Level</th>
+                <th data-orderable="false"></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var user in Model.UsersList)
+            {
+                <tr>
+                    <td>@user.ID</td>
+                    <td>@user.Email</td>
+                    <td>@user.FirstName</td>
+                    <td>@user.LastName</td>
+                    <td>@user.PermissionLevel</td>
+                    <td>
+                        <a href="~/Users/UserDetails/@user.ID" class="glyphicon glyphicon-edit" title="Edit"></a>
+                        <span class="glyphicon glyphicon-remove-circle" onclick="deleteItem(@user.ID)" title="Delete"></span>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    @section scripts
+    {
+        <script>
+            var table;
+            $(function () {
+                $('#main-table').append('<caption style="caption-side: top; background-color: #4380c3; color: white; font-weight: 550;padding-left: 10px;">Users<a href="/Users/AddUser" id="tableHeader"><span class="glyphicon glyphicon-plus-sign" style="padding-right:5px;"></span>New User</a></caption>');
+                table = $('#main-table').DataTable(
+                    {
+                        "searching": false,
+                        "ordering": false,
+                        "lengthChange": false,
+
+                        "pagingType": "full_numbers",
+                        "language": {
+                            paginate: {
+                                next: '<span class="glyphicon glyphicon-menu-right"></span>',
+                                previous: '<span class="glyphicon glyphicon-menu-left"></span>',
+                                first: '<span style="margin: 0px -4px;" class="glyphicon glyphicon-menu-left"></span><span style="margin: 0px -4px;" class="glyphicon glyphicon-menu-left"></span>',
+                                last: '<span style="margin: 0px -4px;" class="glyphicon glyphicon-menu-right"></span><span style="margin: 0px -4px;" class="glyphicon glyphicon-menu-right"></span>'
+                            }
+                        },
+                    });
+            });
+            function deleteItem(id) {
+                smoke.confirm('Are you sure you want to delete this company?', function (e) {
+                    if (e)
+                        location.href = '/Companies/delete/' + id;
+                });
+            }
+            function deleteItem(id) {
+                smoke.confirm('Are you sure you want to delete this user?', function (e) {
+                    if (e)
+                        location.href = '/Users/delete/' + id;
+                });
+            }
+
+        </script>
+    }
+

@@ -1,0 +1,56 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script>
+   
+    $(function(){
+        $('a').each(function(){
+            //if ($(this).prop('href') == window.location.href) {
+            //    $(this).addClass('active'); $(this).parents('li').addClass('active');
+            //}
+            if (window.location.href.indexOf("Companies") > -1 || window.location.href.indexOf("Company") > -1 ||
+                window.location.href.indexOf("Order") > -1 || window.location.href.indexOf("Proposals") > -1
+                || window.location.href.indexOf("Payments") > -1 || window.location.href.indexOf("Invoices") > -1) {
+                $('#companies').addClass('active');
+            }
+            if (window.location.href.indexOf("Product") > -1 && window.location.href.indexOf("OrderedProduct") == -1) {
+                $('#products').addClass('active');
+            }
+            if (window.location.href.indexOf("User") > -1) {
+                $('#users').addClass('active');
+            }
+
+        });
+    });
+</script>
+
+<nav class="navbar navbar-default">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="~/Home/Index">Wholesaler</a>
+        </div>
+        <ul class="nav navbar-nav">
+            <li id="companies"><a href="~/Companies/Company">Companies</a></li>
+            <li id="products"><a href="~/Products/ProductsList">Products</a></li>
+            @{
+                if (Session["permissionLevel"].ToString() == "Admin")
+                {
+                    <li id="users"><a href="~/Users/Index">Users</a></li>
+                }
+            }
+
+            <li><a href="~/Login/Logout">Log Out</a></li>
+
+        </ul>
+        @if (Session["name"] != null)
+        {
+            <div class="userName">@Session["name"]</div>
+        }
+    </div>
+</nav>
+
+
+    @RenderBody()
+
+@RenderSection("scripts", required: false)

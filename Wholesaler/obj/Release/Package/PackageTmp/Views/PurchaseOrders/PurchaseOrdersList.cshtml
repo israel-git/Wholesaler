@@ -1,0 +1,174 @@
+﻿@model Wholesaler.Models.OrderDetailsModel
+@{
+    ViewBag.id = Model.Order.CompanyID;
+    ViewBag.orderID = Model.Order.ID;
+
+    ViewBag.Title = "Purchase Orders";
+    Layout = "~/Views/Shared/_OrderNavbar.cshtml";
+}
+@{
+    decimal totalOrderedProducts = 0;
+    decimal totalCosts = 0;
+    decimal totalExpenses = 0;
+    decimal totalInternalExpenses = 0;
+    decimal totalExternalExpenses = 0;
+    decimal subTotal = 0;
+}
+@foreach (var product in Model.Order.OrderedProducts)
+{
+    var cost = product.Cost ?? 0;
+    //@cost.ToString("C")
+    var quantity = product.Quantity ?? 0;
+    var costXquant = cost * quantity;
+    totalCosts += costXquant;
+
+    var price = product.Price ?? 0;
+    subTotal = price * quantity;
+    totalOrderedProducts += subTotal;
+}
+
+@foreach (var expense in Model.Order.Expenses)
+{
+    var expenseAmount = expense.Amount ?? 0;
+    if (expense.Internal == true)
+    { totalInternalExpenses += expenseAmount; }
+    else
+    { totalExternalExpenses += expenseAmount; }
+
+    totalExpenses += expenseAmount;
+}
+@{
+    var shipping = Model.Order.Shipping ?? 0;
+    decimal totalwExternal = totalOrderedProducts + totalExternalExpenses;
+    decimal totalwCostsInternal = totalCosts + totalInternalExpenses;
+    decimal totalPayments = 0;
+    foreach (var payment in Model.PaymentsList)
+    {
+        totalPayments += payment.Amount ?? 0;
+    }
+    decimal amountDue = totalwExternal + shipping - totalPayments;
+    decimal totalExternalWShipping = totalOrderedProducts + totalExternalExpenses + shipping;
+}
+
+@section summaryBar
+{
+    <div class="summaryBox">
+        <div class="firstColumn">
+            <strong>Company:</strong> @Model.Order.Company.CompanyName<br /> <strong>Status: </strong>@Model.Order.OrderStatuses.StatusName<br />
+            <strong>From:</strong> @Model.Order.FromCompany.CompanyName <br /><strong>To:</strong> @Model.Order.ToCompany.CompanyName
+        </div>
+        <div class="secondColumn">
+            <strong>Total Cost: </strong>@totalwCostsInternal.ToString("C")<br /> <strong>Total Order:</strong>  @totalExternalWShipping.ToString("C")<br />
+            <strong>Total Paid: </strong>@totalPayments.ToString("C")<br /> <strong>Amount Due: </strong>@amountDue.ToString("C")
+        </div>
+    </div>
+}
+@*<a href="~/PurchaseOrders/AddPurchaseOrder/@Model.Order.ID" class="btn new-record-button" role="button">New Purchase Order</a>*@
+
+<table class="stripe hover compact row-border" id="main-table">
+    <thead>
+        <tr>
+            <th data-field="ID" data-sortable="true">ID</th>
+            <th data-field="Date" data-sortable="true">Date</th>
+            <th data-field="ProposalNum" data-sortable="true">Purchase Order #</th>
+            <th data-field="Layout" data-sortable="true">Layout</th>
+            <th data-field="BillCompany" data-sortable="true">Bill To Company</th>
+            <th data-field="BillToName" data-sortable="true">Bill To Name</th>
+            <th data-field="BillToAddress" data-sortable="true">Bill To Address</th>
+            <th data-field="BillToCity" data-sortable="true">Bill To City</th>
+            <th data-field="BillToState" data-sortable="true">Bill To State</th>
+            <th data-field="BillZip" data-sortable="true">Bill To Zip</th>
+            <th data-field="ShipCompany" data-sortable="true">Ship To Company</th>
+            <th data-field="ShipToName" data-sortable="true">Ship To Name</th>
+            <th data-field="ShipToAddress" data-sortable="true">Ship To Address</th>
+            <th data-field="ShipToCity" data-sortable="true">Ship To City</th>
+            <th data-field="ShipToState" data-sortable="true">Ship To State</th>
+            <th data-field="ShipToZip" data-sortable="true">Ship To Zip</th>
+            <th data-field="Taxable" data-sortable="true">Taxable</th>
+            <th data-field="TaxRate" data-sortable="true">Tax Rate</th>
+            <th data-field="FooterNotes" data-sortable="true">Footer Notes</th>
+            <th data-field="Terms" data-sortable="true">Terms</th>
+            <th data-field="Documents" data-sortable="true">Documents</th>
+            <th data-orderable="false" data-width="140"></th>
+        </tr>
+    </thead>
+    <tbody>
+
+        @foreach (var po in Model.Order.PurchaseOrders)
+        {
+            <tr>
+                <td>@po.ID</td>
+                <td>@po.Date</td>
+                <td>@po.PurchaseOrderNumber</td>
+                <td>@po.Layouts.LayoutName</td>
+                <td>@po.BillToCompany</td>
+                <td>@po.BillToName</td>
+                <td>@po.BillToAddress</td>
+                <td>@po.BillToCity</td>
+                <td>@po.BillToState</td>
+                <td>@po.BillToZip</td>
+                <td>@po.ShipToCompany</td>
+                <td>@po.ShipToName</td>
+                <td>@po.ShipToAddress</td>
+                <td>@po.ShipToCity</td>
+                <td>@po.ShipToState</td>
+                <td>@po.ShipToZip</td>
+                <td>@po.Taxable</td>
+                <td>@po.TaxRate</td>
+                <td>@po.FooterNotes</td>
+                <td>@po.Terms</td>
+                <td>
+                    @foreach (var documents in Model.DocumentsList)
+                    {
+                        if (@documents.ForeignID == po.ID)
+                        {
+                            string url = "/Uploads/Documents/" + documents.GUID;
+                            <a href="@url" target="_blank">@documents.DocumentName</a><br />
+                        }
+                    }
+
+                </td>
+                <td>
+                    <a href="~/PurchaseOrders/PurchaseOrderDetails/@po.ID" class="glyphicon glyphicon-edit" title="Edit" style="margin: 0px 20px;"></a>
+                    <span class="glyphicon glyphicon-remove-circle" onclick="deleteItem(@po.ID)" title="Delete" style="margin: 0px 20px;"></span>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@section scripts
+    {
+    <script>
+        var table;
+        $(function () {
+            $('#main-table').append('<caption style="caption-side: top; background-color: #4380c3; color: white; font-weight: 550;padding-left: 10px;">Purchase Orders for Order #@Model.Order.ID<a href="/PurchaseOrders/AddPurchaseOrder/@Model.Order.ID" id="tableHeader" style="float:none; margin-left:50%;"><span class="glyphicon glyphicon-plus-sign" style="padding-right:5px;"></span>New Purchase Order</a></caption>');
+            table = $('#main-table').DataTable(
+                {
+                    "searching": false,
+                    "ordering": false,
+                    "lengthChange": false,
+
+                    "pagingType": "full_numbers",
+                    "language": {
+                        paginate: {
+                            next: '<span class="glyphicon glyphicon-menu-right"></span>',
+                            previous: '<span class="glyphicon glyphicon-menu-left"></span>',
+                            first: '<span style="margin: 0px -4px;" class="glyphicon glyphicon-menu-left"></span><span style="margin: 0px -4px;" class="glyphicon glyphicon-menu-left"></span>',
+                            last: '<span style="margin: 0px -4px;" class="glyphicon glyphicon-menu-right"></span><span style="margin: 0px -4px;" class="glyphicon glyphicon-menu-right"></span>'
+                        }
+                    },
+                });
+        });
+        function deleteItem(id) {
+            smoke.confirm('Are you sure you want to delete this record?', function (e) {
+                if (e)
+                    location.href = '/PurchaseOrders/Delete/' + id;
+            });
+        }
+
+    </script>
+}
+
+
+

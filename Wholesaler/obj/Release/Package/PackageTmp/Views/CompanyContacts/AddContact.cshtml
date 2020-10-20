@@ -1,0 +1,74 @@
+﻿@model Wholesaler.Models.CompanyContactsDetailsModel
+@{
+    ViewBag.id = ViewBag.compID;
+}
+@{
+    ViewBag.Title = "New Contact";
+    Layout = "~/Views/Shared/_Navbar.cshtml";
+}
+
+<script>
+    function submitForm() { $('#pageForm').submit(); }
+</script>
+
+<h2>Add New Contact</h2>
+@{
+    if (ViewBag.compID != null)
+    {
+        Model.CompanyContact.CompanyID = ViewBag.compID;
+    }
+}
+
+<form method="post" id="pageForm" action="~/CompanyContacts/AddContact/@Model.CompanyContact.CompanyID">
+    @*<div class="pageIcons"><a href="@Url.Action("ContactsList/" + Model.CompanyContact.CompanyID, "CompanyContacts")" title="Back"><i class="glyphicon glyphicon-arrow-left  btn-lg  edit-del " style="color:#337AB7; border: 1px solid black; margin-bottom: 10px;"></i></a></div>*@
+    <div class="well">
+
+        <p>
+            <div class="row">
+                <label class="col-sm-2 control-label">Contact Name</label>
+                <div class="col-sm-7">
+                    @Html.TextBoxFor(x => x.CompanyContact.ContactName, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(x => x.CompanyContact.ContactName)
+                </div>
+            </div>
+        </p>
+        <div class="row">
+            <label class="col-sm-2 control-label">Phone Number</label>
+            <div class="col-sm-7">
+                @Html.TextBoxFor(x => x.CompanyContact.PhoneNum, new { @class = "form-control", })
+                @Html.ValidationMessageFor(x => x.CompanyContact.PhoneNum)
+            </div>
+        </div>
+        <p>
+            <div class="row">
+                <label class="col-sm-2 control-label">Email</label>
+                <div class="col-sm-7">
+                    @Html.TextBoxFor(x => x.CompanyContact.Email, new { @class = "form-control", })
+                    @Html.ValidationMessageFor(x => x.CompanyContact.Email)
+                </div>
+            </div>
+        </p>
+        <p>
+            <div class="row">
+                <label class="col-sm-2 control-label">Position</label>
+                <div class="col-sm-7">
+                    @Html.TextBoxFor(x => x.CompanyContact.Position, new { @class = "form-control", })
+                    @Html.ValidationMessageFor(x => x.CompanyContact.Position)
+                </div>
+            </div>
+        </p>
+        <p>
+            <div class="row">
+                <label class="col-sm-2 control-label">Commments</label>
+                <div class="col-sm-7">
+                    @Html.TextBoxFor(x => x.CompanyContact.InternalComments, new { @class = "form-control", })
+                    @Html.ValidationMessageFor(x => x.CompanyContact.InternalComments)
+                </div>
+            </div>
+        </p>
+
+        @Html.HiddenFor(x => x.CompanyContact.CompanyID)
+
+    </div>
+    <a href="#" class="btn btn-success" role="button" onclick="submitForm(); return false;">Submit</a>
+</form>

@@ -1,0 +1,37 @@
+﻿<!DOCTYPE html>
+<html lang="en" class="login_page">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Wholesaler</title>
+
+    <!-- Bootstrap framework -->
+    <link rel="stylesheet" href="~/Content/bootstrap.css" />
+
+
+    <style>
+        body { width: 100%; margin-top: 5%; }
+        .panel { margin: auto; width: 30%;}
+        .panel-heading, .panel-body { width: 100%; }
+        .panel-footer {width:100%;}
+        .field-validation-error { display: block; font-size: 11px; font-weight: 700; color: #C62626; }
+        .input-validation-error { border-color: #b94a48 !important; outline: none; box-shadow: none !important; }
+    </style>
+</head>
+<body>
+
+    <div class="login_box">
+        <form method="post" id="main-form">
+            @RenderBody()
+        </form>
+    </div>
+
+    <script src="~/content/js/jquery.min.js"></script>
+    <script src="~/content/js/jquery.validate.js"></script>
+    <script src="~/content/js/jquery.validate.unobtrusive.js"></script>
+    <script src="~/Content/DataTables/"></script>
+    <script src="~/content/js/bootstrap.min.js"></script>
+
+</body>
+</html>
+

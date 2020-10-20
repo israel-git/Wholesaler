@@ -1,0 +1,69 @@
+﻿@model Wholesaler.Models.CompanyDetailsModel
+@{
+    ViewBag.id = Model.Company.ID;
+}
+@{
+    ViewBag.Title = "Positions";
+    Layout = "~/Views/Shared/_Navbar.cshtml";
+}
+@*<a href="~/CompanyPositions/AddPosition/@Model.Company.ID" class="btn new-record-button" role="button">New Position</a>*@
+
+<table class="stripe hover compact row-border" id="main-table">
+        <thead>
+            <tr>
+                <th data-field="ID" data-sortable="true">ID</th>
+                <th data-field="PositionName" data-sortable="true">Position Name</th>
+                <th data-field="Color" data-sortable="true">Color</th>
+
+                <th data-orderable="false"></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var position in Model.Company.CompanyPositions)
+            {
+                <tr>
+                    <td>@position.ID</td>
+                    <td>@position.PositionName</td>
+                    <td>@position.Color</td>
+                    <td>
+                        <a href="~/CompanyPositions/PositionDetails/@position.ID" class="glyphicon glyphicon-edit" title="Edit"></a>
+                        <span class="glyphicon glyphicon-remove-circle" onclick="deleteItem(@position.ID)" title="Delete"></span>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    @section scripts
+    {
+        <script>
+        var table;
+        $(function () {
+            $('#main-table').append('<caption style="caption-side: top; background-color: #4380c3; color: white; font-weight: 550;padding-left: 10px;">Positions for @Model.Company.CompanyName<a href="/CompanyPositions/AddPosition/@Model.Company.ID" id="tableHeader"><span class="glyphicon glyphicon-plus-sign" style="padding-right:5px;"></span>New Position</a></caption>');
+            table = $('#main-table').DataTable(
+                {
+                    "searching": false,
+                    "ordering": false,
+                    "lengthChange": false,
+
+                    "pagingType": "full_numbers",
+                    "language": {
+                        paginate: {
+                            next: '<span class="glyphicon glyphicon-menu-right"></span>',
+                            previous: '<span class="glyphicon glyphicon-menu-left"></span>',
+                            first: '<span class="glyphicon glyphicon-menu-left double-menu-arrow"></span><span class="glyphicon glyphicon-menu-left double-menu-arrow"></span>',
+                            last: '<span class="glyphicon glyphicon-menu-right double-menu-arrow"></span><span class="glyphicon glyphicon-menu-right double-menu-arrow"></span>'
+                        }
+                    },
+                });
+        });
+        function deleteItem(id) {
+            smoke.confirm('Are you sure you want to delete this record?', function (e) {
+                if (e)
+                    location.href = '/CompanyPositions/DeletePosition/' + id;
+            });
+        }
+
+        </script>
+    }
+

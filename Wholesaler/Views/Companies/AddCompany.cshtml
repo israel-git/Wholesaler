@@ -1,0 +1,52 @@
+﻿@model Wholesaler.Models.CompanyDetailsModel
+
+@{
+    ViewBag.Title = "New Company";
+    Layout = "~/Views/Shared/_MainNavbar.cshtml";
+}
+
+<script>
+    function submitForm() { $('#pageForm').submit(); }
+</script>
+
+<h2>Add New Company</h2>
+<form method="post" id="pageForm" action="~/Companies/AddCompany" enctype="multipart/form-data">
+
+    @*<div class="pageIcons"><a href="@Url.Action("Company", "Companies")" title="Back"><i class="glyphicon glyphicon-arrow-left  btn-lg  edit-del " style="color:#337AB7; border: 1px solid black; margin-bottom: 10px;"></i></a></div>*@
+    <div class="well">
+        <p>
+            <div class="row">
+                <label class="col-sm-2 control-label">Company Name</label>
+                <div class="col-sm-7">
+                    @Html.TextBoxFor(x => x.Company.CompanyName, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(x => x.Company.CompanyName)
+                </div>
+            </div>
+        </p>
+        <div class="row">
+            <label class="col-sm-2 control-label">Phone Number</label>
+            <div class="col-sm-7">
+                @Html.TextBoxFor(x => x.Company.PhoneNum, new { @class = "form-control", })
+                @Html.ValidationMessageFor(x => x.Company.PhoneNum)
+            </div>
+        </div>
+        <p>
+            <div class="row">
+                <label class="col-sm-2 control-label">Comments</label>
+                <div class="col-sm-7">
+                    @Html.TextAreaFor(x => x.Company.InternalComments, new { @class = "form-control", })
+                    @Html.ValidationMessageFor(x => x.Company.InternalComments)
+                </div>
+            </div>
+        </p>
+        <p>
+            <div class="row">
+                <label class="col-sm-2 control-label">Upload Logo</label>
+                <div class="col-sm-7">
+                    <input type="file" name="compLogo" />
+                    @Html.ValidationMessageFor(x => x.Company.Logo)
+                </div>
+            </div>
+    </div>
+    <a href="#" class="btn btn-success" role="button" onclick="submitForm(); return false;">Submit</a>
+</form>

@@ -1,0 +1,145 @@
+﻿@model Wholesaler.Models.OrderDetailsModel
+@{
+    ViewBag.id = Model.Order.CompanyID;
+    ViewBag.orderID = Model.Order.ID;
+
+    ViewBag.Title = "Payments";
+    Layout = "~/Views/Shared/_OrderNavbar.cshtml";
+}
+@{
+    decimal totalOrderedProducts = 0;
+    decimal totalCosts = 0;
+    decimal totalExpenses = 0;
+    decimal totalInternalExpenses = 0;
+    decimal totalExternalExpenses = 0;
+    decimal subTotal = 0;
+}
+@foreach (var product in Model.Order.OrderedProducts)
+{
+    var cost = product.Cost ?? 0;
+    //@cost.ToString("C")
+    var quantity = product.Quantity ?? 0;
+    var costXquant = cost * quantity;
+    totalCosts += costXquant;
+
+    var price = product.Price ?? 0;
+    subTotal = price * quantity;
+    totalOrderedProducts += subTotal;
+}
+
+@foreach (var expense in Model.Order.Expenses)
+{
+    var expenseAmount = expense.Amount ?? 0;
+    if (expense.Internal == true)
+    { totalInternalExpenses += expenseAmount; }
+    else
+    { totalExternalExpenses += expenseAmount; }
+
+    totalExpenses += expenseAmount;
+}
+@{
+    var shipping = Model.Order.Shipping ?? 0;
+    decimal totalwExternal = totalOrderedProducts + totalExternalExpenses;
+    decimal totalwCostsInternal = totalCosts + totalInternalExpenses;
+    decimal totalPayments = 0;
+    foreach (var payment in Model.PaymentsList)
+    {
+        totalPayments += payment.Amount ?? 0;
+    }
+    decimal amountDue = totalwExternal + shipping - totalPayments;
+    decimal totalExternalWShipping = totalOrderedProducts + totalExternalExpenses + shipping;
+}
+
+@section summaryBar
+{
+    <div class="summaryBox">
+        <div class="firstColumn">
+            <strong>Company:</strong> @Model.Order.Company.CompanyName<br /> <strong>Status: </strong>@Model.Order.OrderStatuses.StatusName<br />
+            <strong>From:</strong> @Model.Order.FromCompany.CompanyName<br /> <strong>To:</strong> @Model.Order.ToCompany.CompanyName
+        </div>
+        <div class="secondColumn">
+            <strong>Total Cost: </strong>@totalwCostsInternal.ToString("C")<br /> <strong>Total Order:</strong>  @totalExternalWShipping.ToString("C")<br />
+            <strong>Total Paid: </strong>@totalPayments.ToString("C")<br /> <strong>Amount Due: </strong>@amountDue.ToString("C")
+        </div>
+    </div>
+}
+@*<a href="~/Payments/AddPayment/@Model.Order.ID" class="btn new-record-button" role="button">New Payment</a>*@
+
+<table class="stripe hover compact row-border" id="main-table">
+    <thead>
+        <tr>
+            <th data-field="ID" data-sortable="true">ID</th>
+            <th data-field="Date" data-sortable="true">Date</th>
+            <th data-field="Amount" data-sortable="true">Amount</th>
+            <th data-field="PaymentMethod" data-sortable="true">Payment Method</th>
+            <th data-field="TransactionID" data-sortable="true">Transaction ID</th>
+            <th data-field="RefNum" data-sortable="true">Reference Number</th>
+            <th data-field="Cleared" data-sortable="true">Cleared</th>
+            <th data-field="Notes" data-sortable="true">Notes</th>
+            <th data-field="Documents" data-sortable="true">Documents</th>
+            <th data-orderable="false"></th>
+        </tr>
+    </thead>
+    <tbody>
+
+        @foreach (var payment in Model.Order.Payments)
+        {
+            <tr>
+                <td>@payment.ID</td>
+                <td>@payment.Date</td>
+                <td>@payment.Amount.Value.ToString("C")</td>
+                <td>@payment.PaymentMethod</td>
+                <td>@payment.TransactionID</td>
+                <td>@payment.ReferenceNumber</td>
+                <td>@payment.Cleared</td>
+                <td>@payment.Notes</td>
+                <td>
+                    @foreach (var documents in Model.DocumentsList)
+                    {
+                        if (@documents.ForeignID == payment.ID)
+                        {
+                            string url = "/Uploads/Documents/" + documents.GUID;
+                            <a href="@url" target="_blank">@documents.DocumentName</a><br />
+                        }
+                    }
+
+                </td>
+                <td>
+                    <a href="~/Payments/PaymentDetails/@payment.ID" class="glyphicon glyphicon-edit" title="Edit"></a>
+                    <span class="glyphicon glyphicon-remove-circle" onclick="deleteItem(@payment.ID)" title="Delete"></span>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@section scripts
+    {
+    <script>
+        var table;
+        $(function () {
+            $('#main-table').append('<caption style="caption-side: top; background-color: #4380c3; color: white; font-weight: 550;padding-left: 10px;">Payments for Order #@Model.Order.ID<a href="/Payments/AddPayment/@Model.Order.ID" id="tableHeader"><span class="glyphicon glyphicon-plus-sign" style="padding-right:5px;"></span>New Payment</a></caption>');
+            table = $('#main-table').DataTable(
+                {
+                    "searching": false,
+                    "ordering": false,
+                    "lengthChange": false,
+
+                    "pagingType": "full_numbers",
+                    "language": {
+                        paginate: {
+                            next: '<span class="glyphicon glyphicon-menu-right"></span>',
+                            previous: '<span class="glyphicon glyphicon-menu-left"></span>',
+                            first: '<span style="margin: 0px -4px;" class="glyphicon glyphicon-menu-left"></span><span style="margin: 0px -4px;" class="glyphicon glyphicon-menu-left"></span>',
+                            last: '<span style="margin: 0px -4px;" class="glyphicon glyphicon-menu-right"></span><span style="margin: 0px -4px;" class="glyphicon glyphicon-menu-right"></span>'
+                        }
+                    },
+                });
+        });
+
+    </script>
+}
+
+
+
+

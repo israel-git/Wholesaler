@@ -1,0 +1,366 @@
+﻿@model Wholesaler.Models.PurchaseOrdersDetailsModel
+@{
+    //ViewBag.id = Model.PurchaseOrders.Order.CompanyID;
+    ViewBag.id = ViewBag.companyID.CompanyID;
+    if (ViewBag.orderID != null)
+    {
+        Model.PurchaseOrder.OrderID = ViewBag.orderID;
+    }
+
+    ViewBag.Title = "New Purchase Order";
+    Layout = "~/Views/Shared/_OrderNavbar.cshtml";
+}
+@{
+    decimal totalOrderedProducts = 0;
+    decimal totalCosts = 0;
+    decimal totalExpenses = 0;
+    decimal totalInternalExpenses = 0;
+    decimal totalExternalExpenses = 0;
+    decimal subTotal = 0;
+}
+@foreach (var product in Model.Order.OrderedProducts)
+{
+    var cost = product.Cost ?? 0;
+    //@cost.ToString("C")
+    var quantity = product.Quantity ?? 0;
+    var costXquant = cost * quantity;
+    totalCosts += costXquant;
+
+    var price = product.Price ?? 0;
+    subTotal = price * quantity;
+    totalOrderedProducts += subTotal;
+}
+
+@foreach (var expense in Model.Order.Expenses)
+{
+    var expenseAmount = expense.Amount ?? 0;
+    if (expense.Internal == true)
+    { totalInternalExpenses += expenseAmount; }
+    else
+    { totalExternalExpenses += expenseAmount; }
+
+    totalExpenses += expenseAmount;
+}
+@{
+    var shipping = Model.Order.Shipping ?? 0;
+    decimal totalwExternal = totalOrderedProducts + totalExternalExpenses;
+    decimal totalwCostsInternal = totalCosts + totalInternalExpenses;
+    decimal totalPayments = 0;
+    foreach (var payment in Model.PaymentsList)
+    {
+        totalPayments += payment.Amount ?? 0;
+    }
+    decimal amountDue = totalwExternal + shipping - totalPayments;
+    decimal totalExternalWShipping = totalOrderedProducts + totalExternalExpenses + shipping;
+}
+
+@section summaryBar
+{
+    <div class="summaryBox">
+        <div class="firstColumn">
+            <strong>Company:</strong> @Model.Order.Company.CompanyName<br /> <strong>Status: </strong>@Model.Order.OrderStatuses.StatusName<br />
+            <strong>From:</strong> @Model.Order.FromCompany.CompanyName<br /> <strong>To:</strong> @Model.Order.ToCompany.CompanyName
+        </div>
+        <div class="secondColumn">
+            <strong>Total Cost: </strong>@totalwCostsInternal.ToString("C")<br /> <strong>Total Order:</strong>  @totalExternalWShipping.ToString("C")<br />
+            <strong>Total Paid: </strong>@totalPayments.ToString("C")<br /> <strong>Amount Due: </strong>@amountDue.ToString("C")
+        </div>
+    </div>
+}
+<script>
+    function submitForm() { $('#pageForm').submit(); }
+</script>
+<h2>Add New Purchase Order</h2>
+
+<form method="post" id="pageForm" action="~/PurchaseOrders/AddPurchaseOrder/@Model.PurchaseOrder.OrderID" enctype="multipart/form-data">
+    @*<div class="pageIcons"><a href="@Url.Action("PurchaseOrdersList/" + Model.PurchaseOrder.OrderID, "PurchaseOrders")" title="Back"><i class="glyphicon glyphicon-arrow-left  btn-lg  edit-del " style="color:#337AB7; border: 1px solid black; margin-bottom: 10px;"></i></a></div>*@
+    <div class="well">
+        @Html.HiddenFor(x => x.PurchaseOrder.OrderID)
+        @*@Html.HiddenFor(x => x.Document.ID)*@
+        <p>
+            <div class="row">
+                <label class="col-sm-2 control-label">Purchase Order #</label>
+                <div class="col-sm-7">
+                    @Html.TextBoxFor(x => x.PurchaseOrder.PurchaseOrderNumber, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(x => x.PurchaseOrder.PurchaseOrderNumber)
+                </div>
+            </div>
+        </p>
+        <p>
+            <div class="row">
+                <label class="col-sm-2 control-label">Layout</label>
+                <div class="col-sm-7">
+
+                    <script>
+                        $(document).ready(function () {
+                            $(".chosen-select").chosen();
+                        });
+                    </script>
+
+                    @*@Html.TextBoxFor(x => x.PurchaseOrder.LayoutID, new { @class = "form-control" })
+        @Html.ValidationMessageFor(x => x.PurchaseOrder.LayoutID)*@
+                    @Html.DropDownListFor(x => x.PurchaseOrder.LayoutID,
+                   new SelectList(Model.LayoutsList, "LayoutID", "LayoutName"),
+                    "Select Layout", new { @class = "chosen-select", style = "width:150px;" })
+                    @Html.ValidationMessageFor(x => x.PurchaseOrder.LayoutID)
+                </div>
+            </div>
+        </p>
+        <h3>Billing Details</h3>
+        <p>
+            <div class="row">
+                <label class="col-sm-2 control-label">Bill To Company</label>
+                <div class="col-sm-7">
+                    @*@Html.TextBoxFor(x => x.PurchaseOrder.BillToCompany, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(x => x.PurchaseOrder.BillToCompany)*@
+
+                    @*<select data-placeholder="Select a Company" class="chosen-select" id="PurchaseOrder_BillToCompany" name="PurchaseOrder.BillToCompany" onchange = "getAddressDetails(this.value);" style="width:150px;">
+                            <option></option>
+                            @foreach (var company in ViewBag.companies)
+                            {
+                                <option value="@company.CompanyName">@company.CompanyName</option>
+                            }
+                        </select>*@
+                    @Html.DropDownListFor(x => x.PurchaseOrder.BillToCompany, new SelectList(Model.CompaniesList, "CompanyName", "CompanyName"),
+     "Select Company", new { @class = "chosen-select", style = "width:150px;"})
+                </div>
+            </div>
+        </p>
+
+        <p>
+            <div class="row">
+                <label class="col-sm-2 control-label">Name</label>
+                <div class="col-sm-7">
+                    @Html.TextBoxFor(x => x.PurchaseOrder.BillToName, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(x => x.PurchaseOrder.BillToName)
+                </div>
+            </div>
+        </p>
+        <p>
+            <div class="row">
+                <label class="col-sm-2 control-label">Address</label>
+                <div class="col-sm-7">
+                    @Html.TextBoxFor(x => x.PurchaseOrder.BillToAddress, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(x => x.PurchaseOrder.BillToAddress)
+                </div>
+            </div>
+        </p>
+        <p>
+            <div class="row">
+                <label class="col-sm-2 control-label">City</label>
+                <div class="col-sm-7">
+                    @Html.TextBoxFor(x => x.PurchaseOrder.BillToCity, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(x => x.PurchaseOrder.BillToCity)
+                </div>
+            </div>
+        </p>
+        <p>
+            <div class="row">
+                <label class="col-sm-2 control-label">State</label>
+                <div class="col-sm-7">
+                    @Html.TextBoxFor(x => x.PurchaseOrder.BillToState, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(x => x.PurchaseOrder.BillToState)
+                </div>
+            </div>
+        </p>
+        <p>
+            <div class="row">
+                <label class="col-sm-2 control-label">Zip</label>
+                <div class="col-sm-7">
+                    @Html.TextBoxFor(x => x.PurchaseOrder.BillToZip, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(x => x.PurchaseOrder.BillToZip)
+                </div>
+            </div>
+        </p>
+        <h3>Shipping Details</h3>
+        <p>
+            <div class="row">
+                <label class="col-sm-2 control-label">Ship To Company</label>
+                <div class="col-sm-7">
+                    @*<select data-placeholder="Select a Company" class="chosen-select" id="PurchaseOrder_ShipToCompany" name="PurchaseOrder.ShipToCompany" style="width:150px;">
+                            <option></option>
+                            @foreach (var company in ViewBag.companies)
+                            {
+                                <option value="@company.CompanyName">@company.CompanyName</option>
+                            }
+                        </select>*@
+                    @Html.DropDownListFor(x => x.PurchaseOrder.ShipToCompany, new SelectList(Model.CompaniesList, "CompanyName", "CompanyName"),
+                   "Select Company", new {@class = "chosen-select", style="width:150px;"})
+                </div>
+            </div>
+        </p>
+        <p>
+            <div class="row">
+                <label class="col-sm-2 control-label">Name</label>
+                <div class="col-sm-7">
+                    @Html.TextBoxFor(x => x.PurchaseOrder.ShipToName, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(x => x.PurchaseOrder.ShipToName)
+                </div>
+            </div>
+        </p>
+        <p>
+            <div class="row">
+                <label class="col-sm-2 control-label">Address</label>
+                <div class="col-sm-7">
+                    @Html.TextBoxFor(x => x.PurchaseOrder.ShipToAddress, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(x => x.PurchaseOrder.ShipToAddress)
+                </div>
+            </div>
+        </p>
+        <p>
+            <div class="row">
+                <label class="col-sm-2 control-label">City</label>
+                <div class="col-sm-7">
+                    @Html.TextBoxFor(x => x.PurchaseOrder.ShipToCity, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(x => x.PurchaseOrder.ShipToCity)
+                </div>
+            </div>
+        </p>
+        <p>
+            <div class="row">
+                <label class="col-sm-2 control-label">State</label>
+                <div class="col-sm-7">
+                    @Html.TextBoxFor(x => x.PurchaseOrder.ShipToState, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(x => x.PurchaseOrder.ShipToState)
+                </div>
+            </div>
+        </p>
+        <p>
+            <div class="row">
+                <label class="col-sm-2 control-label">Zip</label>
+                <div class="col-sm-7">
+                    @Html.TextBoxFor(x => x.PurchaseOrder.ShipToZip, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(x => x.PurchaseOrder.ShipToZip)
+                </div>
+            </div>
+        </p>
+        <p>
+            <div class="row">
+                <label class="col-sm-2 control-label">Taxable?</label>
+                <div class="col-sm-7">
+
+                    @*@Html.TextBoxFor(x => x.PurchaseOrder.Taxable, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(x => x.PurchaseOrder.Taxable)*@
+                    @Html.CheckBoxFor(x => x.PurchaseOrder.Taxable)
+                    Yes
+                </div>
+            </div>
+        </p>
+        <script>
+            $(document).ready(function () {
+                $("#PurchaseOrder_Taxable").click(function () {
+                    $(".taxRate").slideToggle();
+                });
+            });
+        </script>
+        <p>
+            <div class="row">
+                <label class="col-sm-2 control-label taxRate" style="display:none;">Tax Rate</label>
+                <div class="col-sm-7 taxRate" style="display:none;">
+                    @Html.TextBoxFor(x => x.PurchaseOrder.TaxRate, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(x => x.PurchaseOrder.TaxRate)
+                </div>
+            </div>
+        </p>
+        <p>
+            <div class="row">
+                <label class="col-sm-2 control-label">Footer Notes</label>
+                <div class="col-sm-7">
+                    @Html.TextBoxFor(x => x.PurchaseOrder.FooterNotes, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(x => x.PurchaseOrder.FooterNotes)
+                </div>
+            </div>
+        </p>
+        <p>
+            <div class="row">
+                <label class="col-sm-2 control-label">Terms</label>
+                <div class="col-sm-7">
+                    @Html.DropDownListFor(x => x.PurchaseOrder.Terms, new SelectList(
+                            new List<Object>
+                            {
+                                new {value = "", text = "Select a Term" },
+                                new {value = "EXW", text = "EXW" },
+                                new {value = "FCA", text = "FCA"},
+                                new {value = "FOB", text = "FOB"},
+                                new {value = "FRC", text = "FRC"},
+                                new {value = "DAP", text = "DAP"},
+                                new {value = "CIF", text = "CIF"}
+                            },
+                            "value",
+                            "text"
+                            ), new { @class = "form-control" })
+                </div>
+            </div>
+        </p>
+        <p>
+            <div class="row">
+                <label class="col-sm-2 control-label">Document Name</label>
+                <div class="col-sm-7">
+                    @Html.TextBoxFor(x => x.Document.DocumentName, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(x => x.Document.DocumentName)
+                </div>
+            </div>
+        </p>
+        <div class="row">
+            <label class="col-sm-2 control-label" for="file">Upload Document</label>
+            <div class="col-sm-7">
+                <input type="file" name="documentFile" />
+                @Html.ValidationMessageFor(x => x.Document.PurchaseOrder)
+            </div>
+        </div>
+    </div>
+    <a href="#" class="btn btn-success" role="button" onclick="submitForm(); return false;">Submit</a>
+</form>
+<script type="text/javascript">
+    $(function () {
+        function getBillAddressInfo() {
+            var companyName = $("#PurchaseOrder_BillToCompany option:selected").text();
+
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("getCompanyDetailsAJAX", "PurchaseOrders")',
+                data: { name: companyName },
+                dataType: "json",
+                success: successFunc
+            });
+
+            function successFunc(response) {
+                $("#PurchaseOrder_BillToName").val(response.AddressName);
+                $("#PurchaseOrder_BillToAddress").val(response.Address + " " + response.Address2);
+                $("#PurchaseOrder_BillToCity").val(response.City);
+                $("#PurchaseOrder_BillToState").val(response.State);
+                $("#PurchaseOrder_BillToZip").val(response.Zip);
+            }
+        }
+            $("#PurchaseOrder_BillToCompany").on("change", getBillAddressInfo);
+    });
+
+    $(function () {
+        function getAddressInfo() {
+            //var companyID = $("#PurchaseOrder_ShipToCompany").val();
+            //var companyID = $("#PurchaseOrder_ShipToCompany option:selected").val();
+            var companyName = $("#PurchaseOrder_ShipToCompany option:selected").text();
+            //document.getElementById("test").innerHTML = companyName;
+
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("getCompanyDetailsAJAX", "PurchaseOrders")',
+                data: { name: companyName },
+                //contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: successFunc
+                //error: errorFunc
+            });
+
+            function successFunc(response) {
+                //alert("Company Address:" + response.AddressName);
+                $("#PurchaseOrder_ShipToName").val(response.AddressName);
+                $("#PurchaseOrder_ShipToAddress").val(response.Address + " " + response.Address2);
+                $("#PurchaseOrder_ShipToCity").val(response.City);
+                $("#PurchaseOrder_ShipToState").val(response.State);
+                $("#PurchaseOrder_ShipToZip").val(response.Zip);
+            }
+        }
+            $("#PurchaseOrder_ShipToCompany").on("change", getAddressInfo);
+    });
+</script>

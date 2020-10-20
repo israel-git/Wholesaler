@@ -1,0 +1,400 @@
+﻿@model Wholesaler.Models.OrderDetailsModel
+@{
+    ViewBag.id = Model.Order.CompanyID;
+    ViewBag.orderID = Model.Order.ID;
+
+    ViewBag.Title = "Order Details";
+    Layout = "~/Views/Shared/_OrderNavbar.cshtml";
+}
+
+@section summaryBar
+{
+<div class="summaryBox"><strong>Company:</strong> @Model.Order.Company.CompanyName</div>
+}
+
+
+<style>
+    .col-sm-7 { width: 80%;}
+</style>
+
+<script>
+    function submitForm() { $('#pageForm').submit(); }
+</script>
+
+<form method="post" id="pageForm" action="~/Orders/OrderDetails/@Model.Order.ID">
+    @if (Model.Order.ID > 0)
+    {
+        @Html.HiddenFor(x => x.Order.ID)
+    }
+
+    <div class="row">&nbsp;</div>
+    @*<div class="pageIcons"><a href="@Url.Action("OrdersList/" + Model.Order.CompanyID, "Orders")" title="Back"><i class="glyphicon glyphicon-arrow-left  btn-lg  edit-del " style="color:#337AB7; border: 1px solid black; margin-bottom: 10px;"></i></a></div>*@
+    <div class="row col-sm-12 formEditContainer well">
+        @Html.ValidationSummary()
+        <p>
+            <div class="row">
+                <label class="col-sm-2 control-label">Order Date</label>
+                <div class="col-sm-7">
+                    @Html.TextBoxFor(x => x.Order.Date, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(x => x.Order.Date)
+                </div>
+            </div>
+        </p>
+        <p>
+            <div class="row">
+                <label class="col-sm-2 control-label">Order Status</label>
+                <div class="col-sm-7">
+                    @*@Html.TextBoxFor(x => x.Order.OrderStatusID, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(x => x.Order.OrderStatusID)*@
+                    @Html.DropDownListFor(x => x.Order.OrderStatusID, 
+                   new SelectList(Model.OrderStatusesList, "OrderStatusID", "StatusName"), 
+                   new { @class = "chosen-select", style = "width:150px;" })
+                </div>
+            </div>
+        </p>
+        <p>
+            <div class="row">
+                <label class="col-sm-2 control-label">Shipping</label>
+                <div class="col-sm-7">
+                    @Html.TextBoxFor(x => x.Order.Shipping, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(x => x.Order.Shipping)
+                </div>
+            </div>
+        </p>
+        <div class="row">
+            <label class="col-sm-2 control-label">From</label>
+            <div class="col-sm-7">
+                <script>
+                    $(document).ready(function () {
+                        $(".chosen-select").chosen();
+                    });
+                </script>
+                @Html.DropDownListFor(x => x.Order.FromCompanyID, new SelectList(Model.CompaniesList, "ID", "CompanyName"),
+"Select Company", new { @class = "chosen-select", style = "width:150px;" })
+
+            </div>
+        </div>
+        <p>
+            <div class="row">
+                <label class="col-sm-2 control-label">To</label>
+                <div class="col-sm-7">
+                    @Html.DropDownListFor(x => x.Order.ToCompanyID, new SelectList(Model.CompaniesList, "ID", "CompanyName"),
+"Select Company", new { @class = "chosen-select", style = "width:150px;" })
+
+                </div>
+            </div>
+        </p>
+        <hr />
+        <p>
+            <div class="row">
+                <label class="col-sm-2 control-label">Products</label>
+                <div class="col-sm-7">
+
+                    <table class="table striped hover data-table main-table" id="main-table" data-order="[]"
+                           data-search="false"
+                           data-show-export="false"
+                           data-show-toggle="false"
+                           data-show-pagination-switch="false"
+                           data-orderable="true"
+                           data-sort-name="ID"
+                           data-sort-order="asc"
+                           data-page-list="[10, 25, 50, 100, ALL]">
+                        <thead>
+                            <tr>
+                                <th data-field="ID" data-sortable="true">ID</th>
+                                <th data-field="ProductName" data-sortable="true">Product Name</th>
+                                <th data-field="Description" data-sortable="true">Description</th>
+                                <th data-field="CaseQuantity" data-sortable="true">Case Quantity</th>
+                                <th data-field="Cost" data-sortable="true">Cost</th>
+                                <th data-field="Price" data-sortable="true">Price</th>
+                                <th data-field="Quantity" data-sortable="true">Quantity</th>
+                                <th data-field="SubTotal" data-sortable="true">Subtotal</th>
+                                <th data-orderable="false" data-width="60"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{ 
+                                decimal totalOrderedProducts = 0;
+                                decimal totalCosts = 0;
+                                }
+                            @foreach (var product in Model.Order.OrderedProducts)
+                            {
+                            <tr>
+                                <td>@product.ID</td>
+                                <td>@product.OrderedProductForID.Name</td>
+                                <td>@product.Description</td>
+                                <td>@product.OrderedProductForID.CaseQuantity</td>
+                                <td>
+                                    @{
+                                        var cost = product.Cost ?? 0;
+                                        @cost.ToString("C")
+                                        var quantity = product.Quantity ?? 0;
+                                        var costXquant = cost * quantity;
+                                        totalCosts += costXquant;
+                                    }
+                                </td>
+                                <td>
+                                    @{
+                                        var price = product.Price ?? 0;
+                                        @price.ToString("C")
+                                    }
+                                </td>
+                                <td>
+                                    @{
+                                        @quantity
+                                    }
+                                </td>
+                                <td>
+                                    @{
+                                        var subTotal = price * quantity;
+                                        totalOrderedProducts += subTotal;
+                                        @subTotal.ToString("C");
+                                    }
+                                </td>
+                                <td>
+                                    <a href="~/Orders/OrderedProductDetails/@product.ID" class="glyphicon glyphicon-edit" title="Edit"></a>
+                                    <span class="glyphicon glyphicon-remove-circle" onclick="deleteItem(@product.ID)" title="Delete"></span>
+       
+                                </td>
+                            </tr>
+                                        }
+                            <tr>
+                                <td colspan="6">TOTAL</td>
+                                <td>@totalOrderedProducts.ToString("C")</td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </p>
+        <p>
+            <div class="row">
+                <label class="col-sm-2 control-label">Add Product</label>
+                <div class="col-sm-7">
+
+                    @*@Html.DropDownListFor(x => x.OrderedProduct.ProductID, new SelectList(Model.ProductsList, "ID", "Name"),
+        "Select Product", new { @class = "chosen-select", style = "width:150px;" })<br />*@
+                    @*Price @Html.TextBoxFor(x => x.OrderedProduct.Price, new { @class = "form-control" })
+        @Html.ValidationMessageFor(x => x.OrderedProduct.Price)*@
+                    @*Quantity @Html.TextBoxFor(x => x.OrderedProduct.Quantity, new { @class = "form-control" })
+        @Html.ValidationMessageFor(x => x.OrderedProduct.Quantity)*@
+
+                    <select data-placeholder="Select a Product" class="chosen-select" id="productSelector" name="productID" style="width:150px;">
+                        <option></option>
+                        @foreach (var product in Model.ProductsList)
+                        {
+                            <option value="@product.ID">@product.Name</option>
+                        }
+                    </select><br />
+                    <div id="caseQuantity" style="float:right; margin-right: 45%;"></div>
+                    Description <textarea class="form-control" name="description" id="productDescription"></textarea>
+                    Cost <input class="form-control" name="cost" id="productCost" />
+                    Price <input class="form-control" name="price" id="productPrice" />
+                    Quantity <input class="form-control" name="quantity" id="productQuantity" />
+                    <br />
+                    <button type="button" class="btn btn-info" id="addProduct">Add Product</button>
+                </div>
+            </div>
+        </p>
+        <hr />
+        <p>
+            <div class="row">
+                <label class="col-sm-2 control-label">Expenses</label>
+                <div class="col-sm-7">
+
+                    <table class="table striped hover data-table main-table" id="expense-table" data-order="[]"
+                           data-search="false"
+                           data-show-export="false"
+                           data-show-toggle="false"
+                           data-show-pagination-switch="false"
+                           data-orderable="true"
+                           data-sort-name="ID"
+                           data-sort-order="asc"
+                           data-page-list="[10, 25, 50, 100, ALL]">
+                        <thead>
+                            <tr>
+                                <th data-field="ID" data-sortable="true">ID</th>
+                                <th data-field="Description" data-sortable="true">Description</th>
+                                <th data-field="Amount" data-sortable="true">Amount</th>
+                                <th data-field="Internal" data-sortable="true">Internal?</th>
+                                <th data-orderable="false" data-width="60"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{ decimal totalExpenses = 0;
+                                decimal totalInternalExpenses = 0;
+                                decimal totalExternalExpenses = 0;
+                              }
+                            @foreach (var expense in Model.Order.Expenses)
+                            {
+                                <tr>
+                                    <td>@expense.ID</td>
+                                    <td>@expense.Description</td>
+                                    <td>
+                                        @{
+                                            var expenseAmount = expense.Amount ?? 0;
+                                            @expenseAmount.ToString("C")
+                                            if (expense.Internal == true)
+                                            { totalInternalExpenses += expenseAmount; }
+                                            else
+                                            { totalExternalExpenses += expenseAmount; }
+
+                                            totalExpenses += expenseAmount;
+                                            }
+
+                                    </td>
+                                    <td>@expense.Internal</td>
+                                    <td>
+                                        <a href="~/Orders/ExpenseDetails/@expense.ID" class="glyphicon glyphicon-edit" title="Edit"></a>
+                                        <span class="glyphicon glyphicon-remove-circle" onclick="deleteItem(@expense.ID)" title="Delete"></span>
+                                    </td>
+                                </tr>
+                                            }
+                            <tr>
+                                <td colspan="2">TOTAL</td>
+                                <td>@totalExpenses.ToString("C")</td>
+                                <td colspan="2"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </p>
+        <p>
+            <div class="row">
+                <label class="col-sm-2 control-label">Add Expense</label>
+                <div class="col-sm-7">
+                    Description <textarea class="form-control" name="description" id="expenseDescription"></textarea>
+                    Amount <input class="form-control" name="amount" id="expenseAmount" />
+                           <div style="margin-top: 10px;">Internal? <input type="checkbox" name="internal" id="internal" /></div>
+                    <br />
+                    <button type="button" class="btn btn-info" id="addExpense" style="margin-top: 15px;">Add Expense</button>
+                </div>
+            </div>
+        </p>
+        <hr />
+        @{ 
+            decimal totalwExternal = totalOrderedProducts + totalExternalExpenses;
+            decimal totalwCostsInternal = totalCosts + totalInternalExpenses;
+            }
+        @{ 
+            //calculate total payments
+            decimal totalPayments = 0;
+            foreach (var payment in Model.PaymentsList)
+            {
+                totalPayments += payment.Amount ?? 0;
+            }
+            decimal amountDue = totalwExternal - totalPayments;
+        }
+
+        <h3>Total Ordered Products/External Expenses:  @totalwExternal.ToString("C")</h3>
+        <h3>Total Costs/Internal Expenses: @totalwCostsInternal.ToString("C")</h3>
+        <hr />
+        <h3>Total Paid:  @totalPayments.ToString("C")</h3>
+        <h3>Amount Due (left to pay):  @amountDue.ToString("C")</h3>
+        @Html.HiddenFor(x => x.Order.CompanyID)
+
+    </div>
+    @if (Model.Order.ID > 0)
+    {
+        <button type="button" class="btn btn-success" onclick="submitForm(); return false;">Save</button>
+        @:&nbsp;
+        <button type="button" class="btn btn-danger" onclick="deleteItem(@Model.Order.ID); return false;">Delete</button>
+    }
+</form>
+
+<script>
+        var table;
+        $(function () {
+            table = $('.main-table').bootstrapTable();
+        });
+        function deleteProduct(id) {
+            smoke.confirm('Are you sure you want to delete this product?', function (e) {
+                if (e)
+                    location.href = '/Orders/deleteProduct/' + id;
+            });
+        }
+    function deleteItem(id) {
+        smoke.confirm('Are you sure you want to delete this record?', function (e) {
+            if (e)
+                location.href = '/Orders/deleteorder/' + id;
+        });
+    }
+    function deleteExpense(id) {
+        smoke.confirm('Are you sure you want to delete this record?', function (e) {
+            if (e)
+                location.href = '/Orders/deleteExpense/' + id;
+        });
+    }
+
+    $(function () {
+        function getProductDetails() {
+            var productID = $("#productSelector option:selected").val();
+
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("getProductDetailsAJAX", "Orders")',
+                data: { productID: productID },
+                dataType: "json",
+                success: successFunc
+            });
+
+            function successFunc(response) {
+                $('#productDescription').val(response.Name + "\n" + response.SKU);
+                $('#productCost').val(response.Cost);
+                $('#productPrice').val(response.Price);
+                $('#caseQuantity').html("Case Quantity:" + response.caseQuant);
+            }
+        }
+        $('#productSelector').on("change", getProductDetails);
+    });
+
+    $(function () {
+        function submitOrderedProduct() {
+            var orderID = @Model.Order.ID;
+            var productID = $("#productSelector option:selected").val();
+            var productDscr = $('#productDescription').val();
+            var cost = $("#productCost").val();
+            var price = $("#productPrice").val();
+            var quantity = $("#productQuantity").val();
+
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("addOrderedProductAJAX", "Orders")',
+                data: { orderID: orderID, productID: productID, description: productDscr, cost: cost, price: price, quantity: quantity },
+                dataType: "json",
+                success: successFunc
+            });
+
+            function successFunc(response) {
+                window.location.href = response;
+            }
+        }
+            $("#addProduct").on("click", submitOrderedProduct);
+    });
+     $(function () {
+        function submitExpense() {
+            var orderID = @Model.Order.ID;
+            var expenseDscr = $('#expenseDescription').val();
+            var amount = $("#expenseAmount").val();
+            var internal = $("#internal").prop("checked");
+
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("addExpenseAJAX", "Orders")',
+                data: { orderID: orderID, description: expenseDscr, amount: amount, intern: internal },
+                dataType: "json",
+                success: successFunc
+            });
+
+            function successFunc(response) {
+                window.location.href = response;
+            }
+        }
+            $("#addExpense").on("click", submitExpense);
+    });
+</script>
+
+

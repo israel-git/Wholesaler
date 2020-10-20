@@ -1,0 +1,58 @@
+﻿@model Wholesaler.Models.CompanyPositionsDetailsModel
+@{
+    ViewBag.id = Model.CompanyPosition.CompanyID;
+}
+@{
+    ViewBag.Title = "Position Details";
+    Layout = "~/Views/Shared/_Navbar.cshtml";
+}
+
+<script>
+    function submitForm() { $('#pageForm').submit(); }
+</script>
+
+
+<form method="post" id="pageForm" action="~/CompanyPositions/PositionDetails/@Model.CompanyPosition.ID">
+    @if (Model.CompanyPosition.ID > 0)
+    {@Html.HiddenFor(x => x.CompanyPosition.ID)}
+
+    <div class="row">&nbsp;</div>
+    @*<div class="pageIcons"><a href="@Url.Action("PositionsList/" + Model.CompanyPosition.CompanyID, "CompanyPositions")" title="Back"><i class="glyphicon glyphicon-arrow-left  btn-lg  edit-del " style="color:#337AB7; border: 1px solid black; margin-bottom: 10px;"></i></a></div>*@
+    <div class="row col-sm-12 formEditContainer well">
+
+        <p>
+            <div class="row">
+                <label class="col-sm-2 control-label">Position Name</label>
+                <div class="col-sm-7">
+                    @Html.TextBoxFor(x => x.CompanyPosition.PositionName, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(x => x.CompanyPosition.PositionName)
+                </div>
+            </div>
+        </p>
+        <div class="row">
+            <label class="col-sm-2 control-label">Color</label>
+            <div class="col-sm-7">
+                @Html.TextBoxFor(x => x.CompanyPosition.Color, new { @class = "form-control", })
+                @Html.ValidationMessageFor(x => x.CompanyPosition.Color)
+            </div>
+        </div>
+        
+        @Html.HiddenFor(x => x.CompanyPosition.CompanyID)
+    </div>
+    @if (Model.CompanyPosition.ID > 0)
+    {
+        <button type="button" class="btn btn-success" onclick="submitForm(); return false;">Save</button>
+        @:&nbsp;
+        <button type="button" class="btn btn-danger" onclick="deleteItem(@Model.CompanyPosition.ID); return false;">Delete</button>
+    }
+</form>
+
+<script>
+    function deleteItem(id) {
+        smoke.confirm('Are you sure you want to delete this record?', function (e) {
+            if (e)
+                location.href = '/CompanyPositions/deleteposition/' + id;
+        });
+    }
+</script>
+

@@ -1,0 +1,45 @@
+﻿@model Wholesaler.Models.CompanyDetailsModel
+@{
+    ViewBag.id = ViewBag.compID;
+}
+@{
+    ViewBag.Title = "New Document";
+    Layout = "~/Views/Shared/_Navbar.cshtml";
+}
+
+<script>
+    function submitForm() { $('#pageForm').submit(); }
+</script>
+
+<h2>Upload New Document</h2>
+@{
+    if (ViewBag.compID != null)
+    {
+        Model.Company.ID = ViewBag.compID;
+    }
+}
+
+<form method="post" id="pageForm" action="~/CompanyDocuments/AddDocument/@Model.Company.ID" enctype="multipart/form-data">
+    @*<div class="pageIcons"><a href="@Url.Action("DocumentsList/" + Model.Company.ID, "CompanyDocuments")" title="Back"><i class="glyphicon glyphicon-arrow-left  btn-lg  edit-del " style="color:#337AB7; border: 1px solid black; margin-bottom: 10px;"></i></a></div>*@
+    <div class="well">
+        <p>
+            <div class="row">
+                <label class="col-sm-2 control-label">Document Name</label>
+                <div class="col-sm-7">
+                    @Html.TextBoxFor(x => x.Document.DocumentName, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(x => x.Document.DocumentName)
+                </div>
+            </div>
+        </p>
+        <div class="row">
+            <label class="col-sm-2 control-label" for="file">Upload Document</label>
+            <div class="col-sm-7">
+                <input type="file" name="documentFile" />
+
+            </div>
+        </div>
+    </div>
+    <a href="#" class="btn btn-success" role="button" onclick="submitForm(); return false;">Submit</a>
+</form>
+
+

@@ -1,0 +1,81 @@
+﻿@model Wholesaler.Models.OrderedProductDetailsModel
+@{
+    ViewBag.id = Model.OrderedProduct.Order.CompanyID;
+    ViewBag.Title = "Ordered Product Details";
+    Layout = "~/Views/Shared/_Navbar.cshtml";
+}
+
+<script>
+    function submitForm() { $('#pageForm').submit(); }
+</script>
+
+<form method="post" id="pageForm" action="~/Orders/OrderedProductDetails/@Model.OrderedProduct.ID">
+
+    @if (Model.OrderedProduct.ID > 0)
+    {
+        @Html.HiddenFor(x => x.OrderedProduct.ID);
+        @Html.HiddenFor(x => x.OrderedProduct.OrderID);
+        @Html.HiddenFor(x => x.OrderedProduct.ProductID);
+    }
+
+    <div class="row">&nbsp;</div>
+    @*<div class="pageIcons"><a href="@Url.Action("OrderDetails/" + Model.OrderedProduct.OrderID, "Orders")" title="Back"><i class="glyphicon glyphicon-arrow-left  btn-lg  edit-del " style="color:#337AB7; border: 1px solid black; margin-bottom: 10px;"></i></a></div>*@
+    <div class="row col-sm-12 formEditContainer well">
+        <p>
+            <div class="row">
+                <label class="col-sm-2 control-label">Description</label>
+                <div class="col-sm-7">
+                    @Html.TextBoxFor(x => x.OrderedProduct.Description, new { @class = "form-control", })
+                    @Html.ValidationMessageFor(x => x.OrderedProduct.Description)
+                </div>
+            </div>
+        </p>
+        <p>
+            <div class="row">
+                <label class="col-sm-2 control-label">Cost</label>
+                <div class="col-sm-7">
+                    @Html.TextBoxFor(x => x.OrderedProduct.Cost, new { @class = "form-control", })
+                    @Html.ValidationMessageFor(x => x.OrderedProduct.Cost)
+                </div>
+            </div>
+        </p>
+        <p>
+            <div class="row">
+                <label class="col-sm-2 control-label">Price</label>
+                <div class="col-sm-7">
+                    @Html.TextBoxFor(x => x.OrderedProduct.Price, new { @class = "form-control", })
+                    @Html.ValidationMessageFor(x => x.OrderedProduct.Price)
+                </div>
+            </div>
+        </p>
+        <p>
+            <div class="row">
+                <label class="col-sm-2 control-label">Quantity</label>
+                <div class="col-sm-7">
+                    @Html.TextBoxFor(x => x.OrderedProduct.Quantity, new { @class = "form-control", })
+                    @Html.ValidationMessageFor(x => x.OrderedProduct.Quantity)
+                </div>
+            </div>
+        </p>
+    </div>
+
+    @if (Model.OrderedProduct.ID > 0)
+    {
+    <button type="button" class="btn btn-success" onclick="submitForm(); return false;">Save</button>
+    @:&nbsp;
+    <button type="button" class="btn btn-danger" onclick="deleteItem(@Model.OrderedProduct.ID); return false;">Delete</button>
+    }
+
+</form>
+
+<script>
+    function deleteItem(id) {
+        smoke.confirm('Are you sure you want to delete this item?', function (e) {
+            if (e)
+                location.href = '/Orders/DeleteProduct/' + id;
+        });
+    }
+</script>
+
+
+

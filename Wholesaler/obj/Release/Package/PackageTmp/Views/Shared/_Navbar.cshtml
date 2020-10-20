@@ -1,0 +1,67 @@
+﻿@{
+    Layout = "~/Views/Shared/_MainNavbar.cshtml";
+}
+<script type="text/javascript">
+    //$(document).ready(function () {
+    //    var url = window.location;
+    //    $('ul.nav a[href="' + url + '"]').parent().addClass('active');
+    //    $('ul.nav a').filter(function () {
+    //        return this.href == url;
+    //    }).parent().addClass('active');
+    //});
+    $(function () {
+        $('a').each(function () {
+            
+            if (window.location.href.indexOf("Companies/Details") > -1) {
+                $('#details').addClass('active');
+            }
+            if (window.location.href.indexOf("Addresses") > -1) {
+                $('#addresses').addClass('active');
+            }
+            if (window.location.href.indexOf("Contacts") > -1) {
+                $('#contacts').addClass('active');
+            }
+            if (window.location.href.indexOf("Positions") > -1) {
+                $('#positions').addClass('active');
+            }
+            if (window.location.href.indexOf("Documents") > -1) {
+                $('#documents').addClass('active');
+            }
+            if (window.location.href.indexOf("Orders") > -1 || window.location.href.indexOf("Proposals") > -1
+                || window.location.href.indexOf("Invoices") > -1 || window.location.href.indexOf("Payments") > -1) {
+                $('#orders').addClass('active');
+            }
+        });
+    });
+</script>
+
+<ul class="nav nav-tabs company-nav">
+    <li id="details"><a href="~/Companies/Details/@ViewBag.id">Company Details</a></li>
+    <li id="addresses"><a href="~/CompanyAddresses/Addresses/@ViewBag.id">Addresses</a></li>
+    <li id="contacts"><a href="~/CompanyContacts/ContactsList/@ViewBag.id">Contacts</a></li>
+    <li id="positions"><a href="~/CompanyPositions/PositionsList/@ViewBag.id">Positions</a></li>
+    <li id="documents"><a href="~/CompanyDocuments/DocumentsList/@ViewBag.id">Documents</a></li>
+    <li id="orders"><a href="~/Orders/OrdersList/@ViewBag.id" id="ordersTab">Orders</a></li>
+</ul>
+@*<nav class="navbar navbar-default">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="~/Home/Index">Wholesaler</a>
+            </div>
+            <ul class="nav navbar-nav">
+                <li><a href="~/Companies/Company">Companies List</a></li>
+                <li><a href="~/Companies/Details/@ViewBag.id">Company Details</a></li>
+                <li><a href="~/CompanyAddresses/Addresses/@ViewBag.id">Addresses</a></li>
+                <li><a href="~/CompanyContacts/ContactsList/@ViewBag.id">Contacts</a></li>
+                <li><a href="~/CompanyPositions/PositionsList/@ViewBag.id">Positions</a></li>
+                <li><a href="~/CompanyDocuments/DocumentsList/@ViewBag.id">Documents</a></li>
+                <li><a href="~/Orders/OrdersList/@ViewBag.id">Orders</a></li>
+                <li><a href="~/Products/ProductsList/@ViewBag.id">Products</a></li>
+            </ul>
+        </div>
+    </nav>*@
+
+<div class="container body-content">
+    @RenderBody()
+</div>
+@RenderSection("scripts", required: false)

@@ -1,0 +1,42 @@
+﻿@model Wholesaler.Models.LoginResetModel
+@{
+    ViewBag.Title = "Reset";
+    Layout = "_Layout.cshtml";
+}
+@using (Html.BeginForm())
+{
+<div class="panel panel-default">
+    <div class="panel panel-heading">Reset Password</div>
+    <div class="panel panel-body">
+        <div class="form-group">
+            <div class="input-group">
+                <span class="input-group-addon input-sm"><i class="glyphicon glyphicon-user"></i></span>
+                @Html.TextBoxFor(x => x.Email, new { @class = "form-control input-sm", placeholder = "Email" })
+                @Html.ValidationMessageFor(x => x.Email)
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="input-group">
+                <span class="input-group-addon input-sm"><i class="glyphicon glyphicon-lock"></i></span>
+                @Html.PasswordFor(x => x.Password, new { @class = "form-control input-sm", placeholder = "Password" })
+                @Html.ValidationMessageFor(x => x.Password)
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="input-group">
+                <span class="input-group-addon input-sm"><i class="glyphicon glyphicon-lock"></i></span>
+                @Html.PasswordFor(x => x.PasswordConfirm, new { @class = "form-control input-sm", placeholder = "Password Confirm" })
+                @Html.ValidationMessageFor(x => x.PasswordConfirm)
+            </div>
+        </div>
+    </div>
+    <div class=" panel panel-footer">
+        <div class="btm_b clearfix">
+            <button class="btn btn-default btn-sm pull-right" type="submit">Reset</button>
+            <span class="link_reg">@Html.ActionLink("Login", "Index", "Login")</span>
+        </div>
+    </div>
+</div>
+}
+
+

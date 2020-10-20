@@ -1,0 +1,162 @@
+﻿@model Wholesaler.Models.PaymentDetailsModel
+@{
+    //ViewBag.id = Model.Proposal.Order.CompanyID;
+    ViewBag.id = ViewBag.companyID.CompanyID;
+    if (ViewBag.orderID != null)
+    {
+        Model.Payment.OrderID = ViewBag.orderID;
+    }
+
+    ViewBag.Title = "New Payment";
+    Layout = "~/Views/Shared/_OrderNavbar.cshtml";
+}
+@{
+    decimal totalOrderedProducts = 0;
+    decimal totalCosts = 0;
+    decimal totalExpenses = 0;
+    decimal totalInternalExpenses = 0;
+    decimal totalExternalExpenses = 0;
+    decimal subTotal = 0;
+}
+@foreach (var product in Model.Order.OrderedProducts)
+{
+    var cost = product.Cost ?? 0;
+    //@cost.ToString("C")
+    var quantity = product.Quantity ?? 0;
+    var costXquant = cost * quantity;
+    totalCosts += costXquant;
+
+    var price = product.Price ?? 0;
+    subTotal = price * quantity;
+    totalOrderedProducts += subTotal;
+}
+
+@foreach (var expense in Model.Order.Expenses)
+{
+    var expenseAmount = expense.Amount ?? 0;
+    if (expense.Internal == true)
+    { totalInternalExpenses += expenseAmount; }
+    else
+    { totalExternalExpenses += expenseAmount; }
+
+    totalExpenses += expenseAmount;
+}
+@{
+    var shipping = Model.Order.Shipping ?? 0;
+    decimal totalwExternal = totalOrderedProducts + totalExternalExpenses;
+    decimal totalwCostsInternal = totalCosts + totalInternalExpenses;
+    decimal totalPayments = 0;
+    foreach (var payment in Model.PaymentsList)
+    {
+        totalPayments += payment.Amount ?? 0;
+    }
+    decimal amountDue = totalwExternal + shipping - totalPayments;
+    decimal totalExternalWShipping = totalOrderedProducts + totalExternalExpenses + shipping;
+}
+
+@section summaryBar
+{
+    <div class="summaryBox">
+        <div class="firstColumn">
+            <strong>Company:</strong> @Model.Order.Company.CompanyName<br /> <strong>Status: </strong>@Model.Order.OrderStatuses.StatusName<br />
+            <strong>From:</strong> @Model.Order.FromCompany.CompanyName<br /> <strong>To:</strong> @Model.Order.ToCompany.CompanyName
+        </div>
+        <div class="secondColumn">
+            <strong>Total Cost: </strong>@totalwCostsInternal.ToString("C")<br /> <strong>Total Order:</strong>  @totalExternalWShipping.ToString("C")<br />
+            <strong>Total Paid: </strong>@totalPayments.ToString("C")<br /> <strong>Amount Due: </strong>@amountDue.ToString("C")
+        </div>
+    </div>
+}
+<script>
+    function submitForm() { $('#pageForm').submit(); }
+</script>
+<h2>Add New Payment</h2>
+
+<form method="post" id="pageForm" action="~/Payments/AddPayment/@Model.Payment.OrderID" enctype="multipart/form-data">
+    @*<div class="pageIcons"><a href="@Url.Action("PaymentsList/" + Model.Payment.OrderID, "Payments")" title="Back"><i class="glyphicon glyphicon-arrow-left  btn-lg  edit-del " style="color:#337AB7; border: 1px solid black; margin-bottom: 10px;"></i></a></div>*@
+    <div class="well">
+        @Html.HiddenFor(x => x.Payment.OrderID)
+        <p>
+            <div class="row">
+                <label class="col-sm-2 control-label">Amount</label>
+                <div class="col-sm-7">
+                    @Html.TextBoxFor(x => x.Payment.Amount, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(x => x.Payment.Amount)
+                </div>
+            </div>
+        </p>
+        <p>
+            <div class="row">
+                <label class="col-sm-2 control-label">Payment Method</label>
+                <div class="col-sm-7">
+                    @Html.DropDownListFor(x => x.Payment.PaymentMethod, new SelectList(
+                          new List<Object>
+                          {
+                              new {value = "", text = "Select a Payment Method" },
+                              new {value = "Wire", text = "Wire" },
+                              new {value = "Credit Card", text = "Credit Card"},
+                              new {value = "Check", text = "Check"}
+                          },
+                          "value",
+                          "text"
+                          ), new { @class = "form-control" })
+                </div>
+            </div>
+        </p>
+        <p>
+            <div class="row">
+                <label class="col-sm-2 control-label">Transaction ID</label>
+                <div class="col-sm-7">
+                    @Html.TextBoxFor(x => x.Payment.TransactionID, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(x => x.Payment.TransactionID)
+                </div>
+            </div>
+        </p>
+
+        <p>
+            <div class="row">
+                <label class="col-sm-2 control-label">Reference #</label>
+                <div class="col-sm-7">
+                    @Html.TextBoxFor(x => x.Payment.ReferenceNumber, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(x => x.Payment.ReferenceNumber)
+                </div>
+            </div>
+        </p>
+        <p>
+            <div class="row">
+                <label class="col-sm-2 control-label">Cleared?</label>
+                <div class="col-sm-7">
+                    Yes @Html.RadioButtonFor(x => x.Payment.Cleared, "true", new { @checked = "true" })
+                    &nbsp;
+                    No @Html.RadioButtonFor(x => x.Payment.Cleared, "false")
+                </div>
+            </div>
+        </p>
+        <p>
+            <div class="row">
+                <label class="col-sm-2 control-label">Notes</label>
+                <div class="col-sm-7">
+                    @Html.TextAreaFor(x => x.Payment.Notes, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(x => x.Payment.Notes)
+                </div>
+            </div>
+        </p>
+        <h3>Upload Document</h3>
+        <p>
+            <div class="row">
+                <label class="col-sm-2 control-label">Document Name</label>
+                <div class="col-sm-7">
+                    @Html.TextBoxFor(x => x.Document.DocumentName, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(x => x.Document.DocumentName)
+                </div>
+            </div>
+        </p>
+        <div class="row">
+            <label class="col-sm-2 control-label" for="file">Upload Document</label>
+            <div class="col-sm-7">
+                <input type="file" name="documentFile" />
+            </div>
+        </div>
+    </div>
+    <a href="#" class="btn btn-success" role="button" onclick="submitForm(); return false;">Submit</a>
+</form>

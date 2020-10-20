@@ -1,0 +1,165 @@
+﻿@model Wholesaler.Models.CompanyDetailsModel
+@{
+    ViewBag.id = Model.Company.ID;
+}
+@{
+    ViewBag.Title = "Orders";
+    Layout = "~/Views/Shared/_Navbar.cshtml";
+}
+
+@*<a href="~/Orders/AddOrder/@Model.Company.ID" class="btn new-record-button" role="button">New Order</a>*@
+
+<table class="stripe hover compact row-border" id="main-table">
+    <thead>
+        <tr>
+            <th data-field="ID" data-sortable="true">ID</th>
+            <th data-field="PositionName" data-sortable="true">Date</th>
+            <th data-field="Color" data-sortable="true">Status</th>
+            <th data-field="Shipping" data-sortable="true">Shipping</th>
+            <th data-field="Totalcost" data-sortable="true">Total Cost</th>
+            <th data-field="TotalOrder" data-sortable="true">Total Order</th>
+            <th data-field="TotalPaid" data-sortable="true">Total Paid</th>
+            <th data-field="amountDue" data-sortable="true">Amount Due</th>
+            <th data-field="From" data-sortable="true">From</th>
+            <th data-field="To" data-sortable="true">To</th>
+
+            <th data-orderable="false"></th>
+        </tr>
+    </thead>
+    <tbody>
+
+        @foreach (var order in Model.OrdersList)
+        {
+            <tr>
+                <td>@order.ID</td>
+                <td>@order.Date.ToShortDateString()</td>
+                <td>@order.OrderStatuses.StatusName</td>
+                <td>
+                    @{
+                        var shipping = order.Shipping ?? 0;
+                        @shipping.ToString("C")
+                    }
+
+                </td>
+                <td>
+                    @{
+                        decimal totalCosts = 0;
+                        //decimal totalExternal = 0;
+                        decimal totalInternal = 0;
+                        foreach (var orderedProd in Model.OrderedProductsList)
+                        {
+                            if (orderedProd.OrderID == order.ID)
+                            {
+                                var cost = orderedProd.Cost ?? 0;
+                                var quant = orderedProd.Quantity ?? 0;
+                                totalCosts += cost * quant;
+                            }
+                        }
+                        foreach (var expense in Model.ExpensesList)
+                        {
+                            if (expense.OrderID == order.ID)
+                            {
+                                if (expense.Internal == true)
+                                {
+                                    var amount = expense.Amount ?? 0;
+                                    totalInternal += amount;
+                                }
+                            }
+                        }
+                        decimal totalCostInternal = totalCosts + totalInternal;
+                        @totalCostInternal.ToString("C")
+                    }
+                </td>
+                <td>
+                    @{
+                        decimal total = 0;
+                        decimal totalExternal = 0;
+                        foreach (var orderedProd in Model.OrderedProductsList)
+                        {
+                            if (orderedProd.OrderID == order.ID)
+                            {
+                                var price = orderedProd.Price ?? 0;
+                                var quant = orderedProd.Quantity ?? 0;
+                                total += price * quant;
+                            }
+                        }
+                        foreach (var expense in Model.ExpensesList)
+                        {
+                            if (expense.OrderID == order.ID)
+                            {
+                                if (expense.Internal == false)
+                                {
+                                    var externalExp = expense.Amount ?? 0;
+                                    totalExternal += externalExp;
+                                }
+                            }
+                        }
+                        decimal totalExternalWShipping = total + totalExternal + shipping;
+                        @totalExternalWShipping.ToString("C")
+                    }
+                </td>
+                <td>
+                    @{
+                        decimal totalPayments = 0;
+                        foreach (var payment in Model.PaymentsList)
+                        {
+                            if (payment.OrderID == order.ID)
+                            {
+                                totalPayments += payment.Amount ?? 0;
+                            }
+                        }
+                        @totalPayments.ToString("C")
+                    }
+                </td>
+                <td>
+                    @{
+                        decimal amountDue = totalExternalWShipping - totalPayments;
+                        @amountDue.ToString("C")
+                    }
+
+                </td>
+                <td>@order.FromCompany.CompanyName</td>
+                <td>@order.ToCompany.CompanyName</td>
+                <td>
+                    <a href="~/Orders/OrderDetails/@order.ID" class="glyphicon glyphicon-edit" title="Edit"></a>
+                    <span class="glyphicon glyphicon-remove-circle" onclick="deleteItem(@order.ID)" title="Delete"></span>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@section scripts
+    {
+    <script>
+        var table;
+        $(function () {
+            $('#main-table').append('<caption style="caption-side: top; background-color: #4380c3; color: white; font-weight: 550;padding-left: 10px;">Orders for @Model.Company.CompanyName<a href="/Orders/AddOrder/@Model.Company.ID" id="tableHeader"><span class="glyphicon glyphicon-plus-sign" style="padding-right:5px;"></span>New Order</a></caption>');
+            table = $('#main-table').DataTable(
+                {
+                    "searching": false,
+                    "ordering": false,
+                    "lengthChange": false,
+
+                    "pagingType": "full_numbers",
+                    "language": {
+                        paginate: {
+                            next: '<span class="glyphicon glyphicon-menu-right"></span>',
+                            previous: '<span class="glyphicon glyphicon-menu-left"></span>',
+                            first: '<span style="margin: 0px -4px;" class="glyphicon glyphicon-menu-left"></span><span style="margin: 0px -4px;" class="glyphicon glyphicon-menu-left"></span>',
+                            last: '<span style="margin: 0px -4px;" class="glyphicon glyphicon-menu-right"></span><span style="margin: 0px -4px;" class="glyphicon glyphicon-menu-right"></span>'
+                        }
+                    },
+                });
+        });
+        function deleteItem(id) {
+            smoke.confirm('Are you sure you want to delete this record?', function (e) {
+                if (e)
+                    location.href = '/Orders/DeleteOrder/' + id;
+            });
+        }
+
+    </script>
+}
+
+

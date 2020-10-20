@@ -1,0 +1,40 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title - Wholesaler</title>
+    @Styles.Render("~/Content/css")
+    @Scripts.Render("~/bundles/modernizr")
+
+    <link rel="stylesheet" href="/content/style.css" type="text/css">
+    <link rel="stylesheet" href="~/Content/bootstrap.min.css" type="text/css" />
+    <link rel="stylesheet" href="~/Content/Bootstrap/bootstrap-table.css" type="text/css" />
+    <link rel="stylesheet" href="~/Content/DataTables/css/dataTables.bootstrap.min.css" type="text/css" />
+    <link rel="stylesheet" href="~/Content/DataTables/css/dataTables.bootstrap4.min.css" type="text/css" />
+    <link rel="stylesheet" href="~/Content/DataTables/css/dataTables.jqueryui.min.css" type="text/css" />
+    <link rel="stylesheet" href="~/Content/smoke.js-master/smoke.css" type="text/css" />
+    <link rel="stylesheet" href="~/Content/Chosen/chosen.min.css" type="text/css" />
+
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/bootstrap")
+    <script type="text/javascript" src="~/Content/Bootstrap/bootstrap-table.js"></script>
+    <script type="text/javascript" src="~/Scripts/DataTables/jquery.dataTables.min.js"></script>
+    <script type="text/javascript" src="~/Scripts/DataTables/dataTables.jqueryui.min.js"></script>
+    <script type="text/javascript" src="~/Scripts/DataTables/dataTables.bootstrap.min.js"></script>
+    <script type="text/javascript" src="~/Scripts/smoke.min.js"></script>
+    <script type="text/javascript" src="~/Content/Chosen/chosen.proto.min.js"></script>
+    <script type="text/javascript" src="~/Content/Chosen/chosen.jquery.min.js"></script>
+
+</head>
+<body>
+
+    <div class="container body-content">
+        @RenderBody()
+    </div>
+
+    
+
+    @RenderSection("scripts", required: false)
+</body>
+</html>

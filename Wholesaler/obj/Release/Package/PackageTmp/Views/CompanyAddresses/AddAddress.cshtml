@@ -1,0 +1,121 @@
+﻿@model Wholesaler.Models.CompanyAddressDetailsModel
+@{
+    ViewBag.id = ViewBag.compID;
+}
+@{
+    ViewBag.Title = "New Address";
+    Layout = "~/Views/Shared/_Navbar.cshtml";
+}
+
+<script>
+    function submitForm() { $('#pageForm').submit(); }
+</script>
+
+<h2>Add New Address</h2>
+@{
+    if (ViewBag.compID != null)
+    {
+        Model.CompanyAddress.CompanyID = ViewBag.compID;
+    }
+    else
+    { }
+}
+
+<form method="post" id="pageForm" action="~/CompanyAddresses/AddAddress/@Model.CompanyAddress.CompanyID">
+    @*<div class="pageIcons"><a href="@Url.Action("Addresses/" + Model.CompanyAddress.CompanyID, "CompanyAddresses")" title="Back"><i class="glyphicon glyphicon-arrow-left  btn-lg  edit-del " style="color:#337AB7; border: 1px solid black; margin-bottom: 10px;"></i></a></div>*@
+    <div class="well">
+
+        <p>
+            <div class="row">
+                <label class="col-sm-2 control-label">Address Name</label>
+                <div class="col-sm-7">
+                    @Html.TextBoxFor(x => x.CompanyAddress.AddressName, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(x => x.CompanyAddress.AddressName)
+                </div>
+            </div>
+        </p>
+        <div class="row">
+            <label class="col-sm-2 control-label">Address1</label>
+            <div class="col-sm-7">
+                @Html.TextBoxFor(x => x.CompanyAddress.Address, new { @class = "form-control", })
+                @Html.ValidationMessageFor(x => x.CompanyAddress.Address)
+            </div>
+        </div>
+        <p>
+            <div class="row">
+                <label class="col-sm-2 control-label">Address2</label>
+                <div class="col-sm-7">
+                    @Html.TextBoxFor(x => x.CompanyAddress.Address2, new { @class = "form-control", })
+                    @Html.ValidationMessageFor(x => x.CompanyAddress.Address2)
+                </div>
+            </div>
+        </p>
+        <p>
+            <div class="row">
+                <label class="col-sm-2 control-label">City</label>
+                <div class="col-sm-7">
+                    @Html.TextBoxFor(x => x.CompanyAddress.City, new { @class = "form-control", })
+                    @Html.ValidationMessageFor(x => x.CompanyAddress.City)
+                </div>
+            </div>
+        </p>
+        <p>
+            <div class="row">
+                <label class="col-sm-2 control-label">State</label>
+                <div class="col-sm-7">
+                    @Html.TextBoxFor(x => x.CompanyAddress.State, new { @class = "form-control", })
+                    @Html.ValidationMessageFor(x => x.CompanyAddress.State)
+                </div>
+            </div>
+        </p>
+        <p>
+            <div class="row">
+                <label class="col-sm-2 control-label">Zip</label>
+                <div class="col-sm-7">
+                    @Html.TextBoxFor(x => x.CompanyAddress.Zip, new { @class = "form-control", })
+                    @Html.ValidationMessageFor(x => x.CompanyAddress.Zip)
+                </div>
+            </div>
+        </p>
+        <p>
+            <div class="row">
+                <label class="col-sm-2 control-label">Country</label>
+                <div class="col-sm-7">
+                    @Html.TextBoxFor(x => x.CompanyAddress.Country, new { @class = "form-control", })
+                    @Html.ValidationMessageFor(x => x.CompanyAddress.Country)
+                </div>
+            </div>
+        </p>
+        <p>
+            <div class="row">
+                <label class="col-sm-2 control-label">Phone Number</label>
+                <div class="col-sm-7">
+                    @Html.TextBoxFor(x => x.CompanyAddress.Phone, new { @class = "form-control", })
+                    @Html.ValidationMessageFor(x => x.CompanyAddress.Phone)
+                </div>
+            </div>
+        </p>
+        @Html.HiddenFor(x => x.CompanyAddress.CompanyID)
+        <p>
+            <div class="row">
+                <label class="col-sm-2 control-label">Billing</label>
+                <div class="col-sm-7">
+                    @*@Html.TextBoxFor(x => x.CompanyAddress.Billing, new { @class = "form-control", })
+                    @Html.ValidationMessageFor(x => x.CompanyAddress.Billing)*@
+                    @Html.CheckBoxFor(x => x.CompanyAddress.Billing)
+                    Yes
+                </div>
+            </div>
+        </p>
+        <p>
+            <div class="row">
+                <label class="col-sm-2 control-label">Order By</label>
+                <div class="col-sm-7">
+                    @Html.TextBoxFor(x => x.CompanyAddress.OrderBy, new { @class = "form-control", @Value = "0" })
+                    @Html.ValidationMessageFor(x => x.CompanyAddress.OrderBy)
+                </div>
+            </div>
+        </p>
+    </div>
+    <a href="#" class="btn btn-success" role="button" onclick="submitForm(); return false;">Submit</a>
+</form>

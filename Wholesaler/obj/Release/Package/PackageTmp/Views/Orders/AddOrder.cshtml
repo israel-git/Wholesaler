@@ -1,0 +1,93 @@
+﻿@model Wholesaler.Models.OrderDetailsModel
+@{
+    ViewBag.id = ViewBag.compID;
+}
+@{
+    ViewBag.Title = "New Order";
+    Layout = "~/Views/Shared/_Navbar.cshtml";
+}
+
+<script>
+    function submitForm() { $('#pageForm').submit(); }
+</script>
+
+<h2>Add New Order</h2>
+@{
+    if (ViewBag.compID != null)
+    {
+        Model.Order.CompanyID = ViewBag.compID;
+    }
+    else
+    { }
+}
+
+<form method="post" id="pageForm" action="~/Orders/AddOrder/@Model.Order.CompanyID">
+    @*<div class="pageIcons"><a href="@Url.Action("OrdersList/" + Model.Order.CompanyID, "Orders")" title="Back"><i class="glyphicon glyphicon-arrow-left  btn-lg  edit-del " style="color:#337AB7; border: 1px solid black; margin-bottom: 10px;"></i></a></div>*@
+    <div class="well">
+
+        <script>
+            $(document).ready(function () {
+                $(".chosen-select").chosen();
+            });
+        </script>
+
+        <p>
+            <div class="row">
+                <label class="col-sm-2 control-label">Status</label>
+                <div class="col-sm-7">
+                    @*@Html.TextBoxFor(x => x.Order.Status, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(x => x.Order.Status)*@
+                    @Html.DropDownListFor(x => x.Order.OrderStatusID, new SelectList(Model.OrderStatusesList, "OrderStatusID", "StatusName"),
+                   "Select Status", new { @class = "chosen-select", style = "width:150px;" })
+                    @Html.ValidationMessageFor(x => x.Order.OrderStatusID)
+                </div>
+            </div>
+        </p>
+        <p>
+            <div class="row">
+                <label class="col-sm-2 control-label">Shipping</label>
+                <div class="col-sm-7">
+                    @Html.TextBoxFor(x => x.Order.Shipping, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(x => x.Order.Shipping)
+                </div>
+            </div>
+        </p>
+        <div class="row">
+            <label class="col-sm-2 control-label">From</label>
+            <div class="col-sm-7">
+
+                @Html.DropDownListFor(x => x.Order.FromCompanyID, new SelectList(Model.CompaniesList, "ID", "CompanyName"),
+                       "Select Company", new {@class = "chosen-select", style="width:150px;"})
+                @Html.ValidationMessageFor(x => x.Order.FromCompanyID)
+                @*<select data-placeholder="Select a Company" class="chosen-select" id="Order_FromCompanyID" name="Order.FromCompanyID" style="width:150px;">
+                    <option></option>
+                    @foreach (var company in ViewBag.companies)
+                    {
+                        <option value="@company.ID">@company.CompanyName</option>
+                    }
+                </select>*@
+            </div>
+        </div>
+        <p>
+            <div class="row">
+                <label class="col-sm-2 control-label">To</label>
+                <div class="col-sm-7">
+                    @Html.DropDownListFor(x => x.Order.ToCompanyID, new SelectList(Model.CompaniesList, "ID", "CompanyName"),
+                    "Select Company", new {@class = "chosen-select", style="width:150px;"})
+                    @Html.ValidationMessageFor(x => x.Order.ToCompanyID)
+                    @*<select data-placeholder="Select a Company" class="chosen-select" id="Order_ToCompanyID" name="Order.ToCompanyID" style="width:150px;">
+                        <option></option>
+                        @foreach (var company in ViewBag.companies)
+                        {
+                            <option value="@company.ID">@company.CompanyName</option>
+                        }
+
+                    </select>*@
+                </div>
+            </div>
+        </p>
+        @Html.HiddenFor(x => x.Order.CompanyID)
+    </div>
+    <a href="#" class="btn btn-success" role="button" onclick="submitForm(); return false;">Submit</a>
+</form>
+
